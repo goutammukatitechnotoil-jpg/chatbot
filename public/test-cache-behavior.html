@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cache Behavior Test - Lead List API</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #f37021;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #f37021;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #f37021;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 5px 5px 5px 0;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #d85a0a;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .response-headers {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .cache-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .cache-indicator.cached {
+            background: #ffc107;
+            color: #000;
+        }
+        .cache-indicator.fresh {
+            background: #28a745;
+            color: white;
+        }
+        .timestamp {
+            font-family: monospace;
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .comparison-table th {
+            background: #f37021;
+            color: white;
+            font-weight: 600;
+        }
+        .comparison-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .test-results {
+            margin-top: 20px;
+        }
+        .result-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        .result-icon.pass {
+            color: #28a745;
+        }
+        .result-icon.fail {
+            color: #dc3545;
+        }
+        .clear-cache-warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .clear-cache-warning h4 {
+            margin-top: 0;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Lead List API Cache Behavior Test</h1>
+        <p class="subtitle">Test if the browser cache fix is working correctly</p>
+
+        <div class="clear-cache-warning">
+            <h4>⚠️ Important: Clear Your Cache First!</h4>
+            <p><strong>Before running tests, clear your browser cache:</strong></p>
+            <ul>
+                <li><strong>Chrome/Edge:</strong> Press <code>Cmd+Shift+Delete</code> (Mac) or <code>Ctrl+Shift+Delete</code> (Windows)</li>
+                <li>Select <strong>"Cached images and files"</strong></li>
+                <li>Click <strong>"Clear data"</strong></li>
+            </ul>
+            <p><em>This ensures a clean test environment.</em></p>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 1: Cache Headers Verification</h3>
+            <p>Check if the API returns proper cache-prevention headers.</p>
+            <button onclick="testCacheHeaders()">Run Cache Headers Test</button>
+            <div id="cacheHeadersResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 2: Request Uniqueness</h3>
+            <p>Verify that each request has a unique URL to prevent caching.</p>
+            <button onclick="testRequestUniqueness()">Run Uniqueness Test</button>
+            <div id="uniquenessResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 3: Multiple Rapid Requests</h3>
+            <p>Test if making multiple requests in quick succession returns fresh data each time.</p>
+            <button onclick="testMultipleRequests()">Run Rapid Request Test</button>
+            <div id="multipleRequestsResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 4: Auto-Refresh Simulation</h3>
+            <p>Simulate the auto-refresh behavior (30-second intervals).</p>
+            <button onclick="startAutoRefreshTest()" id="autoRefreshBtn">Start Auto-Refresh Test</button>
+            <button onclick="stopAutoRefreshTest()" id="stopAutoRefreshBtn" disabled>Stop Test</button>
+            <div id="autoRefreshResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 5: DevTools Comparison</h3>
+            <p>This test requires manual verification:</p>
+            <ol>
+                <li>Run the test below <strong>with DevTools CLOSED</strong></li>
+                <li>Note the result</li>
+                <li>Open DevTools (F12)</li>
+                <li>Run the test again</li>
+                <li>Results should be IDENTICAL (both fresh data)</li>
+            </ol>
+            <button onclick="testDevToolsComparison()">Run Comparison Test</button>
+            <div id="devToolsResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Final Results Summary</h3>
+            <div id="finalResults"></div>
+        </div>
+    </div>
+
+    <script>
+        let autoRefreshInterval = null;
+        let testResults = {
+            cacheHeaders: null,
+            uniqueness: null,
+            multipleRequests: null,
+            autoRefresh: null,
+            devTools: null
+        };
+
+        function updateFinalResults() {
+            const resultsDiv = document.getElementById('finalResults');
+            const passedTests = Object.values(testResults).filter(r => r === true).length;
+            const totalTests = Object.values(testResults).filter(r => r !== null).length;
+            
+            if (totalTests === 0) {
+                resultsDiv.innerHTML = '<p class="status info">Run the tests above to see results.</p>';
+                return;
+            }
+
+            let html = '<div class="test-results">';
+            html += `<h4>Tests Passed: ${passedTests} / ${totalTests}</h4>`;
+            
+            html += '<div class="result-item">';
+            html += testResults.cacheHeaders === true 
+                ? '<span class="result-icon pass">✅</span>' 
+                : testResults.cacheHeaders === false 
+                ? '<span class="result-icon fail">❌</span>' 
+                : '<span class="result-icon">⏺</span>';
+            html += '<span>Cache Headers Test</span></div>';
+
+            html += '<div class="result-item">';
+            html += testResults.uniqueness === true 
+                ? '<span class="result-icon pass">✅</span>' 
+                : testResults.uniqueness === false 
+                ? '<span class="result-icon fail">❌</span>' 
+                : '<span class="result-icon">⏺</span>';
+            html += '<span>Request Uniqueness Test</span></div>';
+
+            html += '<div class="result-item">';
+            html += testResults.multipleRequests === true 
+                ? '<span class="result-icon pass">✅</span>' 
+                : testResults.multipleRequests === false 
+                ? '<span class="result-icon fail">❌</span>' 
+                : '<span class="result-icon">⏺</span>';
+            html += '<span>Multiple Requests Test</span></div>';
+
+            html += '</div>';
+
+            if (passedTests === totalTests && totalTests >= 3) {
+                html += '<p class="status success"><strong>✅ All tests passed!</strong> The browser cache fix is working correctly.</p>';
+            } else if (passedTests > 0) {
+                html += '<p class="status warning"><strong>⚠️ Some tests failed.</strong> Review the results above for details.</p>';
+            } else {
+                html += '<p class="status error"><strong>❌ Tests failed.</strong> The cache fix may not be working properly.</p>';
+            }
+
+            resultsDiv.innerHTML = html;
+        }
+
+        async function testCacheHeaders() {
+            const resultDiv = document.getElementById('cacheHeadersResult');
+            resultDiv.innerHTML = '<p class="status info">Testing cache headers...</p>';
+
+            try {
+                const timestamp = new Date().getTime();
+                const response = await fetch(`/api/lead?_t=${timestamp}`, {
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache',
+                    }
+                });
+
+                const cacheControl = response.headers.get('cache-control');
+                const pragma = response.headers.get('pragma');
+                const expires = response.headers.get('expires');
+
+                const hasNoCacheHeaders = 
+                    cacheControl && cacheControl.includes('no-store') &&
+                    pragma && pragma.includes('no-cache');
+
+                let html = '<h4>Response Headers:</h4>';
+                html += '<div class="response-headers">';
+                html += `<strong>Cache-Control:</strong> ${cacheControl || 'Not set'}<br>`;
+                html += `<strong>Pragma:</strong> ${pragma || 'Not set'}<br>`;
+                html += `<strong>Expires:</strong> ${expires || 'Not set'}`;
+                html += '</div>';
+
+                if (hasNoCacheHeaders) {
+                    html += '<p class="status success">✅ <strong>PASS:</strong> API returns correct cache-prevention headers!</p>';
+                    testResults.cacheHeaders = true;
+                } else {
+                    html += '<p class="status error">❌ <strong>FAIL:</strong> Missing cache-prevention headers. Fix may not be applied.</p>';
+                    testResults.cacheHeaders = false;
+                }
+
+                resultDiv.innerHTML = html;
+                updateFinalResults();
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="status error">❌ Error: ${error.message}</p>`;
+                testResults.cacheHeaders = false;
+                updateFinalResults();
+            }
+        }
+
+        async function testRequestUniqueness() {
+            const resultDiv = document.getElementById('uniquenessResult');
+            resultDiv.innerHTML = '<p class="status info">Testing request uniqueness...</p>';
+
+            try {
+                const urls = [];
+                for (let i = 0; i < 3; i++) {
+                    const timestamp = new Date().getTime();
+                    const url = `/api/lead?_t=${timestamp}`;
+                    urls.push(url);
+                    await new Promise(resolve => setTimeout(resolve, 100)); // Small delay
+                }
+
+                const uniqueUrls = new Set(urls);
+                const isUnique = uniqueUrls.size === urls.length;
+
+                let html = '<h4>Generated URLs:</h4>';
+                html += '<div class="code-block">';
+                urls.forEach((url, idx) => {
+                    html += `${idx + 1}. ${url}<br>`;
+                });
+                html += '</div>';
+
+                if (isUnique) {
+                    html += '<p class="status success">✅ <strong>PASS:</strong> Each request has a unique URL!</p>';
+                    testResults.uniqueness = true;
+                } else {
+                    html += '<p class="status error">❌ <strong>FAIL:</strong> URLs are not unique. Cache busting may not work.</p>';
+                    testResults.uniqueness = false;
+                }
+
+                resultDiv.innerHTML = html;
+                updateFinalResults();
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="status error">❌ Error: ${error.message}</p>`;
+                testResults.uniqueness = false;
+                updateFinalResults();
+            }
+        }
+
+        async function testMultipleRequests() {
+            const resultDiv = document.getElementById('multipleRequestsResult');
+            resultDiv.innerHTML = '<p class="status info">Making 5 rapid requests...</p>';
+
+            try {
+                const results = [];
+                const startTime = Date.now();
+
+                for (let i = 0; i < 5; i++) {
+                    const timestamp = new Date().getTime();
+                    const response = await fetch(`/api/lead?_t=${timestamp}`, {
+                        cache: 'no-store',
+                        headers: {
+                            'Cache-Control': 'no-cache',
+                            'Pragma': 'no-cache',
+                        }
+                    });
+
+                    results.push({
+                        requestNum: i + 1,
+                        timestamp: timestamp,
+                        status: response.status,
+                        cacheControl: response.headers.get('cache-control'),
+                        requestTime: Date.now() - startTime
+                    });
+
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
+
+                const endTime = Date.now();
+                const totalTime = endTime - startTime;
+
+                let html = '<h4>Request Results:</h4>';
+                html += '<table class="comparison-table">';
+                html += '<tr><th>#</th><th>Timestamp</th><th>Status</th><th>Time (ms)</th><th>Cache</th></tr>';
+                
+                results.forEach(r => {
+                    html += `<tr>`;
+                    html += `<td>${r.requestNum}</td>`;
+                    html += `<td><span class="timestamp">${r.timestamp}</span></td>`;
+                    html += `<td>${r.status}</td>`;
+                    html += `<td>${r.requestTime}ms</td>`;
+                    html += `<td>${r.cacheControl?.includes('no-store') ? '<span class="cache-indicator fresh">FRESH</span>' : '<span class="cache-indicator cached">CACHED?</span>'}</td>`;
+                    html += `</tr>`;
+                });
+                
+                html += '</table>';
+
+                const allFresh = results.every(r => r.cacheControl?.includes('no-store'));
+
+                if (allFresh) {
+                    html += `<p class="status success">✅ <strong>PASS:</strong> All ${results.length} requests returned fresh data! (Total time: ${totalTime}ms)</p>`;
+                    testResults.multipleRequests = true;
+                } else {
+                    html += `<p class="status error">❌ <strong>FAIL:</strong> Some requests returned cached data.</p>`;
+                    testResults.multipleRequests = false;
+                }
+
+                resultDiv.innerHTML = html;
+                updateFinalResults();
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="status error">❌ Error: ${error.message}</p>`;
+                testResults.multipleRequests = false;
+                updateFinalResults();
+            }
+        }
+
+        let refreshCount = 0;
+        function startAutoRefreshTest() {
+            const resultDiv = document.getElementById('autoRefreshResult');
+            const startBtn = document.getElementById('autoRefreshBtn');
+            const stopBtn = document.getElementById('stopAutoRefreshBtn');
+            
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            refreshCount = 0;
+
+            resultDiv.innerHTML = '<p class="status info">Auto-refresh test started. Will refresh every 5 seconds (simulating 30s in production)...</p>';
+            resultDiv.innerHTML += '<div id="refreshLog"></div>';
+
+            autoRefreshInterval = setInterval(async () => {
+                refreshCount++;
+                const timestamp = new Date().getTime();
+                const logDiv = document.getElementById('refreshLog');
+                
+                try {
+                    const response = await fetch(`/api/lead?_t=${timestamp}`, {
+                        cache: 'no-store',
+                        headers: {
+                            'Cache-Control': 'no-cache',
+                            'Pragma': 'no-cache',
+                        }
+                    });
+
+                    const isFresh = response.headers.get('cache-control')?.includes('no-store');
+                    const time = new Date().toLocaleTimeString();
+
+                    logDiv.innerHTML += `<div class="status ${isFresh ? 'success' : 'error'}">
+                        Refresh #${refreshCount} at ${time}: 
+                        <span class="cache-indicator ${isFresh ? 'fresh' : 'cached'}">
+                            ${isFresh ? 'FRESH DATA' : 'CACHED DATA'}
+                        </span>
+                    </div>`;
+
+                    // Auto-scroll to bottom
+                    logDiv.scrollTop = logDiv.scrollHeight;
+                } catch (error) {
+                    logDiv.innerHTML += `<div class="status error">Refresh #${refreshCount} failed: ${error.message}</div>`;
+                }
+            }, 5000); // 5 seconds for testing (30s in production)
+        }
+
+        function stopAutoRefreshTest() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+
+            const startBtn = document.getElementById('autoRefreshBtn');
+            const stopBtn = document.getElementById('stopAutoRefreshBtn');
+            
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+
+            const resultDiv = document.getElementById('autoRefreshResult');
+            resultDiv.innerHTML += `<p class="status success">✅ Auto-refresh test stopped after ${refreshCount} refreshes.</p>`;
+        }
+
+        async function testDevToolsComparison() {
+            const resultDiv = document.getElementById('devToolsResult');
+            resultDiv.innerHTML = '<p class="status info">Running comparison test...</p>';
+
+            try {
+                const timestamp = new Date().getTime();
+                const response = await fetch(`/api/lead?_t=${timestamp}`, {
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache',
+                    }
+                });
+
+                const data = await response.json();
+                const isFresh = response.headers.get('cache-control')?.includes('no-store');
+                const devToolsOpen = window.outerWidth - window.innerWidth > 160 || 
+                                    window.outerHeight - window.innerHeight > 160;
+
+                let html = '<div class="status info">';
+                html += `<strong>DevTools Status:</strong> ${devToolsOpen ? '🔍 OPEN' : '🚫 CLOSED (or small)'}<br>`;
+                html += `<strong>Data Freshness:</strong> ${isFresh ? '<span class="cache-indicator fresh">FRESH</span>' : '<span class="cache-indicator cached">CACHED</span>'}<br>`;
+                html += `<strong>Lead Count:</strong> ${data.data?.length || 0}<br>`;
+                html += `<strong>Timestamp:</strong> <span class="timestamp">${timestamp}</span>`;
+                html += '</div>';
+
+                if (isFresh) {
+                    html += '<p class="status success">✅ Data is fresh regardless of DevTools state!</p>';
+                } else {
+                    html += '<p class="status warning">⚠️ Data may be cached. Try opening/closing DevTools and running again.</p>';
+                }
+
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="status error">❌ Error: ${error.message}</p>`;
+            }
+        }
+
+        // Initialize
+        updateFinalResults();
+    </script>
+</body>
+</html>

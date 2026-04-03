@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Embedded Chatbot Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .test-section h2 {
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-online { background-color: #00ff00; }
+        .status-offline { background-color: #ff0000; }
+        .config-key {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        ul li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Live Embedded Chatbot Test</h1>
+        
+        <div class="test-section">
+            <h2><span class="status-indicator status-online"></span>Test Configuration</h2>
+            <p><strong>Config Key:</strong></p>
+            <div class="config-key">cbk_a6c6a1f96f744a54b27ff859</div>
+            <p><strong>API URL:</strong> http://localhost:3000</p>
+            <p><strong>Test Time:</strong> <span id="testTime"></span></p>
+        </div>
+        
+        <div class="test-section">
+            <h2>✅ Features to Test</h2>
+            <ul>
+                <li>Chatbot icon should appear in bottom-right corner</li>
+                <li>Click icon to open/close chat window</li>
+                <li>Test messaging functionality</li>
+                <li>Check if sources appear correctly</li>
+                <li>Verify theming and branding</li>
+                <li>Test responsive behavior</li>
+                <li>Check Direct Line token functionality</li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔧 Debug Information</h2>
+            <p>Open browser console (F12) to see detailed logs:</p>
+            <ul>
+                <li>Config loading status</li>
+                <li>Source parsing information</li>
+                <li>Message processing details</li>
+                <li>API call results</li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h2>🚀 Quick Actions</h2>
+            <p>Try these test messages:</p>
+            <ul>
+                <li>"Hello" - Basic greeting</li>
+                <li>"Tell me about FPT Software" - Information request</li>
+                <li>"I need help with services" - Service inquiry</li>
+                <li>Test any buttons or forms that appear</li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h2>📊 Expected Behavior</h2>
+            <ul>
+                <li>Chatbot loads with current theme settings</li>
+                <li>Logo and branding match admin configuration</li>
+                <li>Sources appear in the Sources panel when provided</li>
+                <li>All interactive elements work properly</li>
+                <li>Mobile responsiveness functions correctly</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- FleziMate Chatbot Embed Code -->
+    <script>
+      // Add timestamp
+      document.getElementById('testTime').textContent = new Date().toLocaleString();
+      
+      // Embed the chatbot
+      (function() {
+        var chatbotConfig = {
+          configKey: 'cbk_a6c6a1f96f744a54b27ff859',
+          apiUrl: 'http://localhost:3000'
+        };
+
+        var script = document.createElement('script');
+        script.src = 'http://localhost:3000/chatbot-loader.js';
+        script.async = true;
+        script.onload = function() {
+          if (window.FleziMateChatbot) {
+            console.log('🤖 FleziMate Chatbot loaded successfully!');
+            window.FleziMateChatbot.init(chatbotConfig);
+          } else {
+            console.error('❌ FleziMate Chatbot failed to load');
+          }
+        };
+        script.onerror = function() {
+          console.error('❌ Failed to load chatbot script');
+        };
+        document.head.appendChild(script);
+      })();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session Diagnostic Tool</title>
+  <style>
+    body {
+      font-family: monospace;
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #1e1e1e;
+      color: #d4d4d4;
+    }
+    .section {
+      background: #2d2d30;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 4px;
+      border-left: 4px solid #f37021;
+    }
+    h2 {
+      color: #f37021;
+      margin-top: 0;
+    }
+    .result {
+      background: #1e1e1e;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    .success { color: #4CAF50; }
+    .error { color: #F44336; }
+    .warning { color: #FF9800; }
+    .info { color: #2196F3; }
+    button {
+      background: #f37021;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #d55a0f;
+    }
+    input {
+      background: #3e3e42;
+      color: #d4d4d4;
+      border: 1px solid #555;
+      padding: 8px;
+      border-radius: 4px;
+      width: 400px;
+      font-family: monospace;
+    }
+    pre {
+      background: #1e1e1e;
+      padding: 10px;
+      overflow-x: auto;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 Session Diagnostic Tool</h1>
+  
+  <div class="section">
+    <h2>1. Session Details</h2>
+    <label>Session ID:</label><br>
+    <input type="text" id="sessionId" value="session_1764393515669_9gkx91yhp" style="width: 500px"><br><br>
+    <label>Tenant ID:</label><br>
+    <input type="text" id="tenantId" value="fpteu" style="width: 200px"><br><br>
+    <button onclick="runFullDiagnostic()">🚀 Run Full Diagnostic</button>
+  </div>
+
+  <div id="results"></div>
+
+  <script>
+    const log = (message, type = 'info') => {
+      const resultsDiv = document.getElementById('results');
+      const div = document.createElement('div');
+      div.className = `result ${type}`;
+      div.innerHTML = message;
+      resultsDiv.appendChild(div);
+    };
+
+    const section = (title) => {
+      const resultsDiv = document.getElementById('results');
+      const div = document.createElement('div');
+      div.className = 'section';
+      div.innerHTML = `<h2>${title}</h2>`;
+      resultsDiv.appendChild(div);
+      return div;
+    };
+
+    async function runFullDiagnostic() {
+      const sessionId = document.getElementById('sessionId').value;
+      const tenantId = document.getElementById('tenantId').value;
+      
+      document.getElementById('results').innerHTML = '';
+      
+      log(`Starting diagnostic for session: ${sessionId}`, 'info');
+      log(`Tenant: ${tenantId}`, 'info');
+
+      // Test 1: Check if session exists via API
+      const s1 = section('Test 1: Check Session via API');
+      try {
+        const response = await fetch(`/api/lead?sessionId=${sessionId}`);
+        const data = await response.json();
+        
+        if (data.data) {
+          s1.innerHTML += `<div class="result success">✅ Session FOUND via API</div>`;
+          s1.innerHTML += `<pre>${JSON.stringify(data.data, null, 2)}</pre>`;
+        } else {
+          s1.innerHTML += `<div class="result error">❌ Session NOT FOUND via API</div>`;
+          s1.innerHTML += `<div class="result warning">This means either:</div>`;
+          s1.innerHTML += `<div class="result">1. Session doesn't exist in database</div>`;
+          s1.innerHTML += `<div class="result">2. Wrong tenant selected</div>`;
+          s1.innerHTML += `<div class="result">3. API authentication issue</div>`;
+        }
+      } catch (error) {
+        s1.innerHTML += `<div class="result error">❌ API Error: ${error.message}</div>`;
+      }
+
+      // Test 2: Check if session is in the full lead list
+      const s2 = section('Test 2: Check Lead List');
+      try {
+        const response = await fetch('/api/lead');
+        const data = await response.json();
+        
+        s2.innerHTML += `<div class="result info">Total leads returned: ${data.data.length}</div>`;
+        
+        const found = data.data.find(l => l.session_id === sessionId);
+        if (found) {
+          s2.innerHTML += `<div class="result success">✅ Session IS in lead list</div>`;
+          s2.innerHTML += `<div class="result">Position: ${data.data.indexOf(found) + 1} of ${data.data.length}</div>`;
+        } else {
+          s2.innerHTML += `<div class="result error">❌ Session NOT in lead list</div>`;
+          s2.innerHTML += `<div class="result">Recent sessions:</div>`;
+          data.data.slice(0, 5).forEach((l, i) => {
+            s2.innerHTML += `<div class="result">${i + 1}. ${l.session_id} (${l.form_data?.name || 'Anonymous'})</div>`;
+          });
+        }
+      } catch (error) {
+        s2.innerHTML += `<div class="result error">❌ Error: ${error.message}</div>`;
+      }
+
+      // Test 3: Check current user and tenant
+      const s3 = section('Test 3: Check Current User');
+      try {
+        const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        const tenant = JSON.parse(localStorage.getItem('currentTenant') || '{}');
+        
+        s3.innerHTML += `<div class="result">User Email: ${user.email || 'Not logged in'}</div>`;
+        s3.innerHTML += `<div class="result">User Tenant ID: ${user.tenantId || 'None'}</div>`;
+        s3.innerHTML += `<div class="result">Current Tenant ID: ${tenant.id || 'None'}</div>`;
+        s3.innerHTML += `<div class="result">Is Super Admin: ${user.isSuperAdmin || false}</div>`;
+        
+        if (user.tenantId === tenantId || user.isSuperAdmin) {
+          s3.innerHTML += `<div class="result success">✅ Tenant access OK</div>`;
+        } else {
+          s3.innerHTML += `<div class="result error">❌ WRONG TENANT!</div>`;
+          s3.innerHTML += `<div class="result error">Expected: ${tenantId}</div>`;
+          s3.innerHTML += `<div class="result error">Actual: ${user.tenantId}</div>`;
+        }
+      } catch (error) {
+        s3.innerHTML += `<div class="result error">❌ Error: ${error.message}</div>`;
+      }
+
+      // Test 4: Test session creation API
+      const s4 = section('Test 4: Test Session Creation');
+      const testSessionId = 'diagnostic_' + Date.now();
+      try {
+        s4.innerHTML += `<div class="result info">Creating test session: ${testSessionId}</div>`;
+        
+        const response = await fetch(`/api/lead/session?tenantId=${tenantId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: testSessionId,
+            message: 'Diagnostic test message',
+            sender: 'user'
+          })
+        });
+        
+        s4.innerHTML += `<div class="result">Status: ${response.status} ${response.statusText}</div>`;
+        
+        const data = await response.json();
+        s4.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        
+        if (data.success) {
+          s4.innerHTML += `<div class="result success">✅ API working! Session created.</div>`;
+          
+          // Wait and check if it appears
+          setTimeout(async () => {
+            const checkResponse = await fetch(`/api/lead?sessionId=${testSessionId}`);
+            const checkData = await checkResponse.json();
+            
+            if (checkData.data) {
+              s4.innerHTML += `<div class="result success">✅ Test session appears via API!</div>`;
+            } else {
+              s4.innerHTML += `<div class="result error">❌ Test session created but doesn't appear via API!</div>`;
+            }
+          }, 2000);
+          
+        } else {
+          s4.innerHTML += `<div class="result error">❌ API failed</div>`;
+        }
+      } catch (error) {
+        s4.innerHTML += `<div class="result error">❌ Error: ${error.message}</div>`;
+      }
+
+      // Test 5: Check network monitoring
+      const s5 = section('Test 5: Enable Network Monitoring');
+      s5.innerHTML += `<div class="result info">Network monitoring enabled.</div>`;
+      s5.innerHTML += `<div class="result">Open the chatbot and send a message.</div>`;
+      s5.innerHTML += `<div class="result">Watch the console for intercepted requests.</div>`;
+      
+      // Intercept fetch
+      const originalFetch = window.fetch;
+      window.fetch = function(...args) {
+        if (args[0].includes('session')) {
+          console.log('🌐 INTERCEPTED SESSION API CALL:');
+          console.log('  URL:', args[0]);
+          console.log('  Options:', args[1]);
+          if (args[1]?.body) {
+            console.log('  Body:', JSON.parse(args[1].body));
+          }
+          
+          return originalFetch.apply(this, args).then(async response => {
+            const clone = response.clone();
+            const data = await clone.json();
+            console.log('📥 RESPONSE:');
+            console.log('  Status:', response.status);
+            console.log('  Data:', data);
+            return response;
+          });
+        }
+        return originalFetch.apply(this, args);
+      };
+
+      log('✅ Diagnostic complete! Check results above.', 'success');
+    }
+  </script>
+</body>
+</html>

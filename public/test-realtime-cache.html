@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Cache Debug Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #f37021;
+            margin-bottom: 10px;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .warning h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .test-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+        }
+        .panel h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #f37021;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 5px;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #d85a0a;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        button.secondary {
+            background: #6c757d;
+        }
+        button.secondary:hover {
+            background: #5a6268;
+        }
+        .status {
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .log-container {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 6px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid #3e4451;
+        }
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        .log-time {
+            color: #61afef;
+        }
+        .log-type {
+            color: #98c379;
+            font-weight: bold;
+        }
+        .log-error {
+            color: #e06c75;
+        }
+        .log-warning {
+            color: #e5c07b;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 13px;
+        }
+        .comparison-table th,
+        .comparison-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .comparison-table th {
+            background: #f37021;
+            color: white;
+            font-weight: 600;
+        }
+        .comparison-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .metric {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 2px;
+        }
+        .metric.cached {
+            background: #ffc107;
+            color: #000;
+        }
+        .metric.fresh {
+            background: #28a745;
+            color: white;
+        }
+        .metric.stale {
+            background: #dc3545;
+            color: white;
+        }
+        .instructions {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Real-Time Cache Debugging Tool</h1>
+        <p>Debug exactly when and why cache is being used vs fresh data</p>
+
+        <div class="warning">
+            <h3>⚠️ Critical: Clear Cache Before Testing</h3>
+            <p><strong>Press <code>Cmd+Shift+Delete</code> (Mac) or <code>Ctrl+Shift+Delete</code> (Windows)</strong></p>
+            <p>Select "Cached images and files" and click "Clear data"</p>
+            <p><strong>Then refresh THIS page with <code>Cmd+Shift+R</code> or <code>Ctrl+Shift+R</code></strong></p>
+        </div>
+
+        <div class="instructions">
+            <h3>📋 Testing Instructions</h3>
+            <ol>
+                <li><strong>Close DevTools</strong> completely (if open)</li>
+                <li>Click "Start Monitoring" button below</li>
+                <li>Open chatbot in another tab and send a message</li>
+                <li>Watch the logs below - you should see the session appear</li>
+                <li>If session doesn't appear, the logs will show WHY</li>
+            </ol>
+        </div>
+
+        <div class="test-panel">
+            <div class="panel">
+                <h3>🎮 Controls</h3>
+                <button onclick="startMonitoring()" id="startBtn">Start Monitoring</button>
+                <button onclick="stopMonitoring()" id="stopBtn" disabled>Stop Monitoring</button>
+                <button onclick="fetchOnce()" class="secondary">Fetch Once</button>
+                <button onclick="clearLogs()" class="secondary">Clear Logs</button>
+                <div id="status" style="margin-top: 15px;"></div>
+            </div>
+
+            <div class="panel">
+                <h3>📊 Current State</h3>
+                <div id="currentState"></div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>📝 Request Logs</h3>
+            <div class="log-container" id="logContainer"></div>
+        </div>
+
+        <div class="panel">
+            <h3>📈 Request History</h3>
+            <div id="historyContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        let monitoringInterval = null;
+        let requestCount = 0;
+        let logs = [];
+        let requestHistory = [];
+        let lastLeadCount = 0;
+
+        function addLog(type, message) {
+            const timestamp = new Date().toLocaleTimeString() + '.' + new Date().getMilliseconds();
+            logs.push({ timestamp, type, message });
+            
+            const logContainer = document.getElementById('logContainer');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            
+            let typeClass = 'log-type';
+            if (type === 'ERROR') typeClass = 'log-error';
+            if (type === 'WARN') typeClass = 'log-warning';
+            
+            logEntry.innerHTML = `<span class="log-time">${timestamp}</span> <span class="${typeClass}">[${type}]</span> ${message}`;
+            logContainer.appendChild(logEntry);
+            
+            // Auto-scroll to bottom
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function clearLogs() {
+            logs = [];
+            document.getElementById('logContainer').innerHTML = '';
+            addLog('INFO', 'Logs cleared');
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function updateCurrentState(leadCount, isCached, responseTime, sessionIds) {
+            const stateDiv = document.getElementById('currentState');
+            const changeIndicator = leadCount !== lastLeadCount ? `(+${leadCount - lastLeadCount})` : '';
+            
+            stateDiv.innerHTML = `
+                <p><strong>Total Leads:</strong> ${leadCount} ${changeIndicator}</p>
+                <p><strong>Cache Status:</strong> <span class="metric ${isCached ? 'cached' : 'fresh'}">${isCached ? 'CACHED' : 'FRESH'}</span></p>
+                <p><strong>Response Time:</strong> ${responseTime}ms</p>
+                <p><strong>Request Count:</strong> ${requestCount}</p>
+                <p><strong>Last Updated:</strong> ${new Date().toLocaleTimeString()}</p>
+            `;
+
+            if (leadCount !== lastLeadCount) {
+                addLog('SUCCESS', `✅ Lead count changed: ${lastLeadCount} → ${leadCount}`);
+                lastLeadCount = leadCount;
+            }
+        }
+
+        function updateHistory() {
+            const historyDiv = document.getElementById('historyContainer');
+            
+            if (requestHistory.length === 0) {
+                historyDiv.innerHTML = '<p class="status info">No requests yet</p>';
+                return;
+            }
+
+            let html = '<table class="comparison-table">';
+            html += '<tr><th>#</th><th>Time</th><th>Leads</th><th>Response Time</th><th>Cache</th><th>URL</th></tr>';
+            
+            requestHistory.slice(-10).reverse().forEach((req, idx) => {
+                const rowNum = requestHistory.length - idx;
+                html += `<tr>`;
+                html += `<td>${rowNum}</td>`;
+                html += `<td>${req.timestamp}</td>`;
+                html += `<td>${req.leadCount}</td>`;
+                html += `<td>${req.responseTime}ms</td>`;
+                html += `<td><span class="metric ${req.isCached ? 'cached' : 'fresh'}">${req.isCached ? 'CACHED' : 'FRESH'}</span></td>`;
+                html += `<td style="font-size: 11px; font-family: monospace;">${req.url.substring(0, 50)}...</td>`;
+                html += `</tr>`;
+            });
+            
+            html += '</table>';
+            historyDiv.innerHTML = html;
+        }
+
+        async function fetchOnce() {
+            requestCount++;
+            const startTime = Date.now();
+            
+            try {
+                addLog('INFO', `Fetching leads (request #${requestCount})...`);
+                
+                // Mimic the exact fetch from leadService
+                const timestamp = new Date().getTime();
+                const random = Math.random().toString(36).substring(7);
+                const url = `/api/lead?_t=${timestamp}&_r=${random}`;
+                
+                addLog('INFO', `URL: ${url}`);
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    cache: 'no-cache',
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0',
+                    }
+                });
+
+                const responseTime = Date.now() - startTime;
+                
+                // Check response headers
+                const cacheControl = response.headers.get('cache-control');
+                const pragma = response.headers.get('pragma');
+                const expires = response.headers.get('expires');
+                
+                addLog('INFO', `Response headers: Cache-Control=${cacheControl}, Pragma=${pragma}, Expires=${expires}`);
+                
+                const isCached = !(cacheControl && cacheControl.includes('no-store'));
+                
+                if (isCached) {
+                    addLog('WARN', '⚠️ Response appears to be cached!');
+                } else {
+                    addLog('SUCCESS', '✅ Response is fresh (not cached)');
+                }
+
+                const data = await response.json();
+                const leadCount = data.data ? data.data.length : 0;
+                
+                addLog('SUCCESS', `Received ${leadCount} leads in ${responseTime}ms`);
+                
+                // Log some session IDs for verification
+                if (data.data && data.data.length > 0) {
+                    const recentSessions = data.data.slice(0, 3).map(l => l.session_id).join(', ');
+                    addLog('INFO', `Recent sessions: ${recentSessions}`);
+                }
+
+                requestHistory.push({
+                    timestamp: new Date().toLocaleTimeString(),
+                    leadCount,
+                    responseTime,
+                    isCached,
+                    url
+                });
+
+                updateCurrentState(leadCount, isCached, responseTime, data.data ? data.data.map(l => l.session_id) : []);
+                updateHistory();
+                
+                return { success: true, leadCount, isCached };
+                
+            } catch (error) {
+                const responseTime = Date.now() - startTime;
+                addLog('ERROR', `❌ Error: ${error.message}`);
+                updateStatus(`Error: ${error.message}`, 'error');
+                return { success: false, error: error.message };
+            }
+        }
+
+        function startMonitoring() {
+            if (monitoringInterval) {
+                addLog('WARN', 'Monitoring already running');
+                return;
+            }
+
+            addLog('INFO', '🚀 Starting real-time monitoring...');
+            addLog('INFO', 'Fetching leads every 5 seconds');
+            updateStatus('Monitoring active - watching for new sessions', 'success');
+            
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+
+            // Fetch immediately
+            fetchOnce();
+
+            // Then fetch every 5 seconds
+            monitoringInterval = setInterval(() => {
+                fetchOnce();
+            }, 5000);
+        }
+
+        function stopMonitoring() {
+            if (!monitoringInterval) {
+                return;
+            }
+
+            clearInterval(monitoringInterval);
+            monitoringInterval = null;
+            
+            addLog('INFO', '⏸️ Monitoring stopped');
+            updateStatus('Monitoring stopped', 'info');
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+        }
+
+        // Initialize
+        updateStatus('Ready to start monitoring', 'info');
+        addLog('INFO', 'Tool initialized. Click "Start Monitoring" to begin.');
+        
+        // Update history
+        updateHistory();
+    </script>
+</body>
+</html>

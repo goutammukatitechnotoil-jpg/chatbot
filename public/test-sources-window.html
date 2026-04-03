@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sources Window Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .success { color: #10b981; }
+        .info { color: #3b82f6; }
+        .warning { color: #f59e0b; }
+        button {
+            background: #f37021;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #d85a0a;
+        }
+        input[type="number"] {
+            width: 100px;
+            padding: 10px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .layout-demo {
+            display: flex;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+            height: 300px;
+            background: white;
+            margin: 20px 0;
+        }
+        .chat-area {
+            flex: 1;
+            padding: 20px;
+            background: #f9f9f9;
+            border-right: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .sources-panel {
+            background: #f0f0f0;
+            padding: 20px;
+            transition: width 0.3s ease;
+            min-width: 200px;
+            max-width: 500px;
+        }
+        .message {
+            background: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .source-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .screen-size-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #333;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+        @media (max-width: 1024px) {
+            .sources-panel {
+                display: none;
+            }
+            .layout-demo::after {
+                content: "Sources panel hidden on screens < 1024px wide";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: #fff3cd;
+                color: #856404;
+                padding: 10px;
+                border-radius: 5px;
+                border: 1px solid #ffeaa7;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="screen-size-info">
+        Screen: <span id="screenWidth">0</span>px
+    </div>
+
+    <h1>🔍 Sources Window Configuration Test</h1>
+    <p class="info">This page demonstrates the sources window functionality and width configuration.</p>
+    
+    <div class="test-section">
+        <h2>Current Sources Window Settings</h2>
+        <div id="currentSettings">Loading...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Sources Width</h2>
+        <label for="sourcesWidth">Sources Panel Width:</label>
+        <input type="number" id="sourcesWidth" min="200" max="500" value="320">
+        <span>px</span>
+        <button onclick="updateSourcesWidth()">Update Width</button>
+        <button onclick="testWidth(250)">Compact (250px)</button>
+        <button onclick="testWidth(350)">Balanced (350px)</button>
+        <button onclick="testWidth(450)">Spacious (450px)</button>
+        
+        <div id="updateResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Layout Preview</h2>
+        <p>This shows how the chat window layout looks with different sources panel widths:</p>
+        
+        <div class="layout-demo" id="layoutDemo">
+            <div class="chat-area">
+                <div>
+                    <h3>Chat Messages</h3>
+                    <div class="message">🤖 Bot: Hello! How can I help you today?</div>
+                    <div class="message">👤 User: Tell me about your AI services</div>
+                    <div class="message">🤖 Bot: We offer comprehensive AI solutions. Here are some references for more information.</div>
+                </div>
+                <div style="border-top: 1px solid #ccc; padding-top: 15px;">
+                    <input type="text" placeholder="Type your message..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                </div>
+            </div>
+            
+            <div class="sources-panel" id="sourcesPanel">
+                <h3>Sources</h3>
+                <div class="source-item">
+                    <strong>1. AI Services Overview</strong>
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                        https://example.com/ai-services
+                    </div>
+                </div>
+                <div class="source-item">
+                    <strong>2. Implementation Guide</strong>
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                        https://docs.example.com/guide
+                    </div>
+                </div>
+                <div class="source-item">
+                    <strong>3. Case Studies</strong>
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                        https://example.com/case-studies
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <p class="info">
+            <strong>Note:</strong> The sources panel is only visible on screens wider than 1024px (desktop/tablet landscape).
+            On mobile and smaller screens, sources are typically shown inline with messages.
+        </p>
+    </div>
+
+    <div class="test-section">
+        <h2>✅ Verification Checklist</h2>
+        <ul>
+            <li><span class="success">✅</span> Sources window width is configurable via API</li>
+            <li><span class="success">✅</span> Changes are stored in MongoDB database</li>
+            <li><span class="success">✅</span> Width constraints prevent layout issues (min: 200px, max: 500px)</li>
+            <li><span class="success">✅</span> Responsive behavior: hidden on small screens</li>
+            <li><span class="success">✅</span> Admin Panel UI control added to Appearance section</li>
+            <li><span class="success">✅</span> Real-time preview in Admin Panel</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 Admin Panel Instructions</h2>
+        <ol>
+            <li>Open Admin Panel (requires login)</li>
+            <li>Navigate to <strong>"Appearance"</strong> tab</li>
+            <li>Scroll to <strong>"Sources Window"</strong> section</li>
+            <li>Adjust the <strong>"Sources Panel Width"</strong> slider (200-500px)</li>
+            <li>View the real-time preview</li>
+            <li>Click <strong>"Save Appearance Settings"</strong></li>
+            <li>Changes will be applied immediately to the chatbot</li>
+        </ol>
+    </div>
+
+    <script>
+        let currentConfig = {};
+
+        // Update screen width display
+        function updateScreenWidth() {
+            document.getElementById('screenWidth').textContent = window.innerWidth;
+        }
+        updateScreenWidth();
+        window.addEventListener('resize', updateScreenWidth);
+
+        async function loadCurrentSettings() {
+            try {
+                const response = await fetch('/api/config');
+                const data = await response.json();
+                currentConfig = data.data;
+                
+                document.getElementById('currentSettings').innerHTML = `
+                    <p><strong>Sources Panel Width:</strong> ${currentConfig.sourcesWidth}px</p>
+                    <p><strong>Status:</strong> <span class="success">✅ Configured and active</span></p>
+                    <p><strong>Layout:</strong> ${getLayoutDescription(currentConfig.sourcesWidth)}</p>
+                `;
+                
+                document.getElementById('sourcesWidth').value = currentConfig.sourcesWidth;
+                updateLayoutPreview(currentConfig.sourcesWidth);
+            } catch (error) {
+                document.getElementById('currentSettings').innerHTML = `<p class="warning">Error loading settings: ${error.message}</p>`;
+            }
+        }
+
+        function getLayoutDescription(width) {
+            if (width < 280) return 'Compact - More space for chat';
+            if (width > 400) return 'Spacious - Detailed source information';
+            return 'Balanced - Good mix of chat and sources';
+        }
+
+        function updateLayoutPreview(width) {
+            const panel = document.getElementById('sourcesPanel');
+            if (panel) {
+                panel.style.width = width + 'px';
+            }
+        }
+
+        async function updateSourcesWidth() {
+            const width = parseInt(document.getElementById('sourcesWidth').value);
+            const resultDiv = document.getElementById('updateResult');
+            
+            if (width < 200 || width > 500) {
+                resultDiv.innerHTML = '<p class="warning">⚠️ Width must be between 200-500 pixels</p>';
+                return;
+            }
+            
+            try {
+                resultDiv.innerHTML = '<p class="info">Updating sources width...</p>';
+                
+                const response = await fetch('/api/config', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sourcesWidth: width })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    updateLayoutPreview(width);
+                    
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Sources width updated to ${width}px</p>
+                        <p><strong>Layout:</strong> ${getLayoutDescription(width)}</p>
+                        <p class="info">Changes are saved to database and active immediately!</p>
+                    `;
+                    
+                    // Refresh current settings
+                    await loadCurrentSettings();
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="warning">❌ Error: ${error.message}</p>`;
+            }
+        }
+
+        function testWidth(width) {
+            document.getElementById('sourcesWidth').value = width;
+            updateSourcesWidth();
+        }
+
+        // Load settings on page load
+        document.addEventListener('DOMContentLoaded', loadCurrentSettings);
+    </script>
+</body>
+</html>

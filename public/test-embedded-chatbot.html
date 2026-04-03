@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Embedded Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        .test-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-content">
+        <h1>Test Page - Embedded Chatbot</h1>
+        
+        <div class="test-section">
+            <h2>About This Test</h2>
+            <p>This page demonstrates the embedded chatbot functionality using the new config key approach.</p>
+            <p>The chatbot should appear as a floating icon in the bottom-right corner.</p>
+        </div>
+        
+        <div class="test-section">
+            <h2>Features to Test</h2>
+            <ul>
+                <li>Chatbot icon visibility</li>
+                <li>Click to open/close chat window</li>
+                <li>Configuration loaded via config key</li>
+                <li>Proper theming and branding</li>
+                <li>Direct Line token functionality</li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h2>Instructions</h2>
+            <ol>
+                <li>Generate a config key in the admin panel settings</li>
+                <li>Copy the embed code from the settings</li>
+                <li>Replace the placeholder script below with the actual embed code</li>
+                <li>Test the chatbot functionality</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- FleziMate Chatbot Embed Code - PLACEHOLDER -->
+    <!-- Replace this with the actual embed code from admin panel settings -->
+    <script>
+      (function() {
+        var chatbotConfig = {
+          configKey: 'cbk_7acf404221c74bfba5ff0e88',
+          apiUrl: 'http://localhost:3000'
+        };
+
+        var script = document.createElement('script');
+        script.src = 'http://localhost:3000/chatbot-loader.js';
+        script.async = true;
+        script.onload = function() {
+          if (window.FleziMateChatbot) {
+            window.FleziMateChatbot.init(chatbotConfig);
+          }
+        };
+        document.head.appendChild(script);
+      })();
+    </script>
+
+</body>
+</html>
