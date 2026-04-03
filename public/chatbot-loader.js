@@ -2,7 +2,7 @@
  * FleziMate Chatbot Loader
  * This script allows embedding the chatbot on any website
  */
-
+ 
 (function() {
   'use strict';
 
