@@ -551,9 +551,9 @@ function DashboardView({ sliders, sentences }: { sliders: SliderImage[]; sentenc
         },
         {
           name: '5. Leads Captured',
-          value: data.funnel.leadsCaptured,
+          value: data.funnel?.leadsCaptured || 0,
           description: 'Users who submitted forms',
-          percentage: analyticsService.calculateConversionRate(data.funnel.leadsCaptured, data.uniqueCustomers),
+          percentage: analyticsService.calculateConversionRate(data.funnel?.leadsCaptured || 0, data.uniqueCustomers),
           color: '#ec4899',
         },
       ];

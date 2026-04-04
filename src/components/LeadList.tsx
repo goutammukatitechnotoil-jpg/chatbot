@@ -65,13 +65,6 @@ export function LeadList({ canView }: { canView?: boolean }) {
 
   useEffect(() => {
     loadLeads();
-    
-    // Auto-refresh every 30 seconds to show new sessions
-    const refreshInterval = setInterval(() => {
-      loadLeads();
-    }, 30000); // 30 seconds
-
-    return () => clearInterval(refreshInterval);
   }, []);
 
   useEffect(() => {

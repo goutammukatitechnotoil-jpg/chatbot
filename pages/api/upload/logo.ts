@@ -121,7 +121,8 @@ async function handler(
     const form = formidable({
       uploadDir,
       keepExtensions: true,
-      maxFileSize: 2 * 1024 * 1024, // 2MB limit (to prevent base64 from exceeding 10MB body limit)
+      maxFileSize: 10 * 1024 * 1024, // 10MB limit
+      maxTotalFileSize: 10 * 1024 * 1024, // 10MB total
       filename: (name, ext) => {
         // Generate unique temporary filename
         const timestamp = Date.now();

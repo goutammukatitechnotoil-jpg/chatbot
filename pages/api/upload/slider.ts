@@ -110,7 +110,8 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse<ResponseD
     uploadDir,
     keepExtensions: true,
     multiples: false,
-    maxFileSize: 5 * 1024 * 1024,
+    maxFileSize: 10 * 1024 * 1024, // 10MB per file
+    maxTotalFileSize: 10 * 1024 * 1024, // 10MB total
     filename: (name, ext, part) => {
       const timestamp = Date.now();
       const random = Math.random().toString(36).substring(2, 8);

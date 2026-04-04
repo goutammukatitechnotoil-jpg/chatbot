@@ -1782,7 +1782,7 @@
         return `
         <div class="fpt-slider-slide" data-index="${idx}" data-link="${link}">
           <a href="${link}" target="${target}" rel="noopener noreferrer">
-            <img src="${imageSrc}" alt="${img && img.title ? img.title : 'Slide ' + (idx + 1)}">
+            <img src="${imageSrc}" alt="${img && img.title ? img.title : 'Slide ' + (idx + 1)}" style="object-fit:fill;">
           </a>
         </div>
       `;
