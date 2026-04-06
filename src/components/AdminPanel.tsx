@@ -116,14 +116,14 @@ export function AdminPanel() {
   const [contentLoading, setContentLoading] = useState(true);
 
   // Initialize active tab from sessionStorage (for dedicated page routes)
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedTab = sessionStorage.getItem('activeTab') as ActiveTab;
-      if (storedTab) {
-        setActiveTab(storedTab);
-      }
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (typeof window !== 'undefined') {
+  //     const storedTab = sessionStorage.getItem('activeTab') as ActiveTab;
+  //     if (storedTab) {
+  //       setActiveTab(storedTab);
+  //     }
+  //   }
+  // }, []);
 
   useEffect(() => {
     loadForms();
