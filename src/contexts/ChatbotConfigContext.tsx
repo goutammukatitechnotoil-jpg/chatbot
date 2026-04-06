@@ -84,23 +84,22 @@ export function ChatbotConfigProvider({ children }: { children: ReactNode }) {
           }
         } else {
           // Admin mode: load config normally
-          console.log('Loading config from API...');
           const apiConfig = await ConfigService.getConfig();
           console.log('Config loaded from API:', apiConfig);
           setConfig(apiConfig);
-          
+
           // Optional: Also save to localStorage as backup
           localStorage.setItem('chatbot_config', JSON.stringify(apiConfig));
         }
       }
     } catch (error) {
       console.error('Failed to load config from API, trying localStorage:', error);
-      
+
       // Fallback to localStorage if API fails (only in admin mode)
       if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search);
         const isEmbedded = urlParams.get('embedded') === 'true';
-        
+
         if (!isEmbedded) {
           const stored = localStorage.getItem('chatbot_config');
           if (stored) {
@@ -121,30 +120,30 @@ export function ChatbotConfigProvider({ children }: { children: ReactNode }) {
 
   const updateConfig = async (newConfig: Partial<ChatbotConfig>) => {
     console.log('updateConfig called with:', newConfig);
-    
+
     try {
       // Optimistically update local state
       const updated = { ...config, ...newConfig };
       setConfig(updated);
       console.log('Local config state updated:', updated);
-      
+
       // Save to API
       if (isClient) {
         console.log('Saving config to API...');
         const savedConfig = await ConfigService.saveConfig(updated);
         console.log('Config saved to API successfully:', savedConfig);
-        
+
         // Optional: Also update localStorage as backup
         if (typeof window !== 'undefined') {
           localStorage.setItem('chatbot_config', JSON.stringify(savedConfig));
         }
-        
+
         // Update state with the response from API (in case there were any server-side changes)
         setConfig(savedConfig);
       }
     } catch (error) {
       console.error('Failed to save config to API:', error);
-      
+
       // If API fails, at least save to localStorage
       if (typeof window !== 'undefined') {
         const updated = { ...config, ...newConfig };

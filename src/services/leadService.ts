@@ -117,13 +117,6 @@ export const leadService = {
         },
       });
       
-      // Log for debugging
-      console.log('[LeadService] Fetched leads at:', new Date().toISOString(), 'URL:', response.url);
-      console.log('[LeadService] Response headers:', {
-        cacheControl: response.headers.get('cache-control'),
-        pragma: response.headers.get('pragma'),
-        expires: response.headers.get('expires'),
-      });
       
       const result = await safeJsonParse(response);
       console.log('[LeadService] Received', result.data?.length || 0, 'leads');

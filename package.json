@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "proxy": "node server.js",
+    "proxy": "node -e \"process.env.NODE_ENV='production'; require('./server.js')\"",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
