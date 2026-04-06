@@ -1,4 +1,5 @@
 import { useState, useEffect, ChangeEvent } from 'react';
+import { useRouter } from 'next/router';
 import {
   Plus,
   Trash2,
@@ -76,6 +77,7 @@ export function AdminPanel() {
     return 'viewer';
   };
 
+  const router = useRouter();
   const currentUserRole: TeamRole = mapRoleToTeamRole(user?.role as string | undefined);
   const currentPermissions = ROLE_PERMISSIONS[currentUserRole];
   const canView = !!currentPermissions?.canView;
@@ -303,11 +305,11 @@ export function AdminPanel() {
     { id: 'settings' as ActiveTab, label: 'Settings', icon: Settings, url: '/settings' },
   ];
 
-  const handleNavigation = (item: typeof menuItems[0]) => {
+  const handleNavigation = async (item: typeof menuItems[0]) => {
     setActiveTab(item.id);
     sessionStorage.setItem('activeTab', item.id);
     if (typeof window !== 'undefined') {
-      window.location.href = item.url;
+      await router.push(item.url);
     }
   };
 
