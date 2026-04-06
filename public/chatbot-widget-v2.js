@@ -203,6 +203,7 @@
       this.leadSessionCreated = false;
       this.proxySocket = null;
       this.proxyReady = false;
+      this.proxyConnecting = false;  // Prevent concurrent connection attempts
       this.pendingProxyMessages = [];
       this.recentUserMessages = [];
       this.renderedActivityIds = new Set();
@@ -2298,7 +2299,14 @@
     }
 
     async initializeProxy() {
-      if (this.proxySocket && (this.proxySocket.readyState === WebSocket.OPEN || this.proxySocket.readyState === WebSocket.CONNECTING)) return;
+      // Prevent concurrent connection attempts
+      if (this.proxyConnecting || (this.proxySocket && (this.proxySocket.readyState === WebSocket.OPEN || this.proxySocket.readyState === WebSocket.CONNECTING))) {
+        console.log('[Proxy] Connection already in progress or established');
+        return;
+      }
+
+      this.proxyConnecting = true;
+      console.log('[Proxy] Starting connection...');
 
       try {
         const apiOrigin = new URL(this.config.apiUrl, window.location.href).origin;
@@ -2318,6 +2326,7 @@
 
         this.proxySocket.onopen = () => {
           console.log('Connected to Chatbot Proxy');
+          this.proxyConnecting = false;
           this.flushPendingProxyMessages();
         };
 
@@ -2350,12 +2359,18 @@
         };
 
         this.proxySocket.onclose = () => {
+          console.log('[Proxy] Connection closed, cleaning up');
           this.proxySocket = null;
           this.proxyReady = false;
-          if (this.isOpen) setTimeout(() => this.initializeProxy(), 3000);
+          this.proxyConnecting = false;
+          if (this.isOpen) {
+            console.log('[Proxy] Widget still open, reconnecting in 3 seconds...');
+            setTimeout(() => this.initializeProxy(), 3000);
+          }
         };
       } catch (error) {
         console.error('Failed to initialize proxy connection:', error);
+        this.proxyConnecting = false;
       }
     }
 

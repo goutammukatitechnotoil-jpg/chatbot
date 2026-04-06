@@ -63,7 +63,7 @@ export class DirectLineService {
         console.log('Connecting DirectLineService to Proxy:', wsUrl);
         this.socket = new WebSocket(wsUrl);
 
-        const timeout = setTimeout(() => {
+        const timeout = setTimeout(() => {e
           if (this.socket?.readyState !== WebSocket.OPEN) {
             this.socket?.close();
             settleReject(new Error('Connection timeout while connecting to chatbot proxy'));

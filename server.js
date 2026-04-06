@@ -70,11 +70,17 @@ app.prepare().then(() => {
     const { pathname } = parse(req.url);
 
     if (pathname === '/ws') {
+      // Handle chatbot WebSocket proxy
       wss.handleUpgrade(req, socket, head, (ws) => {
         wss.emit('connection', ws, req);
       });
+    } else if (pathname === '/_next/webpack-hmr') {
+      // Allow Next.js HMR to handle its own WebSocket
+      // This is handled by Next.js internally, do nothing here
+      // The connection will be handled by Next.js app
     } else {
-      // Allow other upgrades (like Next.js HMR)
+      // For all other upgrades, let Next.js handle them
+      // This includes any other WebSocket connections
     }
   });
 
