@@ -103,11 +103,7 @@ function AppContent() {
   }
 
   // Regular tenant users see the admin panel
-  return (
-    <ChatbotConfigProvider>
-      <AdminPanel />
-    </ChatbotConfigProvider>
-  );
+  return <AdminPanel />;
 }
 
 import { LoadingProvider } from './contexts/LoadingContext';

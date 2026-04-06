@@ -38,7 +38,6 @@ const getFieldValue = (formData: any, ...fieldNames: string[]) => {
 };
 
 const hasAnyField = (formData: any, ...fieldNames: string[]) => {
-  console.log('Checking fields:', fieldNames, 'in formData:', formData);
   return fieldNames.some(fieldName => formData?.[fieldName]);
 };
 
@@ -79,11 +78,11 @@ export function LeadList({ canView }: { canView?: boolean }) {
       console.log('[LeadList] Loading leads...', new Date().toISOString());
       const data = await leadService.getLeads();
       console.log('[LeadList] Loaded', data.length, 'leads');
-      
+
       // Force a new array reference to trigger React re-render
       const freshData = [...data];
       setLeads(freshData);
-      
+
       // If no search query, also update filtered leads immediately
       if (!searchQuery.trim()) {
         setFilteredLeads(freshData);
@@ -207,10 +206,10 @@ export function LeadList({ canView }: { canView?: boolean }) {
             className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2.5 rounded-lg hover:bg-gray-200 transition-colors font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             title="Refresh lead list"
           >
-            <svg 
-              className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} 
-              fill="none" 
-              stroke="currentColor" 
+            <svg
+              className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24"
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -301,13 +300,13 @@ export function LeadList({ canView }: { canView?: boolean }) {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        {hasAnyField(lead.form_data, 'company', 'Company Name','Company') && (
+                        {hasAnyField(lead.form_data, 'company', 'Company Name', 'Company') && (
                           <div className="flex items-center gap-2 text-sm text-gray-900">
                             <Building2 className="w-4 h-4 text-gray-400" />
-                            {getFieldValue(lead.form_data, 'company', 'Company Name','Company')}
+                            {getFieldValue(lead.form_data, 'company', 'Company Name', 'Company')}
                           </div>
                         )}
-                         {hasAnyField(lead.form_data, 'country', 'Country') && (
+                        {hasAnyField(lead.form_data, 'country', 'Country') && (
 
                           <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
                             <MapPin className="w-3.5 h-3.5 text-gray-400" />
@@ -318,13 +317,13 @@ export function LeadList({ canView }: { canView?: boolean }) {
                       <td className="px-6 py-4">
                         {(() => {
                           const isChatOnly = (lead.form_data?.Purpose === 'Chat Only' ||
-                                              lead.form_data?.purpose === 'Chat Only' || 
-                                             lead.form_data?.Purpose === 'Chat Session') && 
-                                             lead.form_data?.name === 'Anonymous User' &&
-                                             !lead.form_data?.email && 
-                                             !lead.form_data?.phone &&
-                                             !lead.form_data?.company;
-                          
+                            lead.form_data?.purpose === 'Chat Only' ||
+                            lead.form_data?.Purpose === 'Chat Session') &&
+                            lead.form_data?.name === 'Anonymous User' &&
+                            !lead.form_data?.email &&
+                            !lead.form_data?.phone &&
+                            !lead.form_data?.company;
+
                           if (isChatOnly) {
                             return (
                               <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
@@ -488,7 +487,7 @@ export function LeadList({ canView }: { canView?: boolean }) {
                                           {message.sender === 'user' ? 'User' : 'Bot'}:
                                         </span>
                                         <span className="text-gray-900 ml-2">{message.message}</span>
-                                        
+
                                         {/* Display sources if they exist */}
                                         {message.sources && message.sources.length > 0 && (
                                           <div className="mt-2 ml-6">
@@ -497,9 +496,9 @@ export function LeadList({ canView }: { canView?: boolean }) {
                                               {message.sources.map((source: any, sourceIndex: number) => (
                                                 <div key={sourceIndex} className="text-xs text-blue-600">
                                                   {source.url ? (
-                                                    <a 
-                                                      href={source.url} 
-                                                      target="_blank" 
+                                                    <a
+                                                      href={source.url}
+                                                      target="_blank"
                                                       rel="noopener noreferrer"
                                                       className="hover:underline"
                                                     >
@@ -513,7 +512,7 @@ export function LeadList({ canView }: { canView?: boolean }) {
                                             </div>
                                           </div>
                                         )}
-                                        
+
                                         {index < lead.chat_history.length - 1 && <div className="border-t border-gray-100 my-2" />}
                                       </div>
                                     ))}
@@ -572,64 +571,62 @@ export function LeadList({ canView }: { canView?: boolean }) {
               <button
                 onClick={goToPrevPage}
                 disabled={currentPage === 1}
-              className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-gray-500"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Previous
-            </button>
-            
-            <div className="flex items-center gap-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                // Show page numbers with ellipsis logic
-                if (totalPages <= 7) {
-                  // Show all pages if 7 or fewer
-                  return (
-                    <button
-                      key={page}
-                      onClick={() => goToPage(page)}
-                      className={`px-3 py-2 text-sm font-medium rounded-lg ${
-                        currentPage === page
-                          ? 'bg-[#f37021] text-white'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  );
-                } else {
-                  // Show ellipsis for large page counts
-                  if (
-                    page === 1 ||
-                    page === totalPages ||
-                    (page >= currentPage - 1 && page <= currentPage + 1)
-                  ) {
+                className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-gray-500"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Previous
+              </button>
+
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                  // Show page numbers with ellipsis logic
+                  if (totalPages <= 7) {
+                    // Show all pages if 7 or fewer
                     return (
                       <button
                         key={page}
                         onClick={() => goToPage(page)}
-                        className={`px-3 py-2 text-sm font-medium rounded-lg ${
-                          currentPage === page
+                        className={`px-3 py-2 text-sm font-medium rounded-lg ${currentPage === page
                             ? 'bg-[#f37021] text-white'
                             : 'text-gray-700 hover:bg-gray-50'
-                        }`}
+                          }`}
                       >
                         {page}
                       </button>
                     );
-                  } else if (
-                    (page === currentPage - 2 && currentPage > 3) ||
-                    (page === currentPage + 2 && currentPage < totalPages - 2)
-                  ) {
-                    return (
-                      <span key={page} className="px-2 py-2 text-sm text-gray-500">
-                        ...
-                      </span>
-                    );
+                  } else {
+                    // Show ellipsis for large page counts
+                    if (
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1)
+                    ) {
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => goToPage(page)}
+                          className={`px-3 py-2 text-sm font-medium rounded-lg ${currentPage === page
+                              ? 'bg-[#f37021] text-white'
+                              : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                        >
+                          {page}
+                        </button>
+                      );
+                    } else if (
+                      (page === currentPage - 2 && currentPage > 3) ||
+                      (page === currentPage + 2 && currentPage < totalPages - 2)
+                    ) {
+                      return (
+                        <span key={page} className="px-2 py-2 text-sm text-gray-500">
+                          ...
+                        </span>
+                      );
+                    }
+                    return null;
                   }
-                  return null;
-                }
-              })}
-            </div>
+                })}
+              </div>
 
               <button
                 onClick={goToNextPage}
@@ -668,11 +665,10 @@ export function LeadList({ canView }: { canView?: boolean }) {
                     className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-[70%] rounded-lg p-4 ${
-                        message.sender === 'user'
+                      className={`max-w-[70%] rounded-lg p-4 ${message.sender === 'user'
                           ? 'bg-[#f37021] text-white'
                           : 'bg-gray-100 text-gray-900'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs font-semibold opacity-75">
@@ -683,7 +679,7 @@ export function LeadList({ canView }: { canView?: boolean }) {
                         </span>
                       </div>
                       <p className="text-sm">{message.message}</p>
-                      
+
                       {/* Display sources in modal */}
                       {message.sources && message.sources.length > 0 && (
                         <div className="mt-3 pt-2 border-t border-gray-200 border-opacity-50">
@@ -692,15 +688,14 @@ export function LeadList({ canView }: { canView?: boolean }) {
                             {message.sources.map((source, sourceIndex) => (
                               <div key={sourceIndex} className="text-xs">
                                 {source.url ? (
-                                  <a 
-                                    href={source.url} 
-                                    target="_blank" 
+                                  <a
+                                    href={source.url}
+                                    target="_blank"
                                     rel="noopener noreferrer"
-                                    className={`hover:underline ${
-                                      message.sender === 'user' 
-                                        ? 'text-orange-100 hover:text-white' 
+                                    className={`hover:underline ${message.sender === 'user'
+                                        ? 'text-orange-100 hover:text-white'
                                         : 'text-blue-600 hover:text-blue-800'
-                                    }`}
+                                      }`}
                                   >
                                     {source.title}
                                   </a>
