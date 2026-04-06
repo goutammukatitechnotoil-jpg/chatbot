@@ -1788,6 +1788,7 @@
       `;
       }).join('');
 
+      
       const dots = (this.config.sliderImages || this.config.slider_images || []).map((_, idx) => `
         <button class="fpt-slider-dot ${idx === 0 ? 'active' : ''}" data-index="${idx}"></button>
       `).join('');
