@@ -272,7 +272,6 @@
     async createLeadSession() {
       if (this.leadSessionCreated) return;
       this.leadSessionCreated = true;
-      console.log('Creating lead session...');
       try {
         // Use the first user message if available, else empty
 
@@ -1751,7 +1750,7 @@
 
       // Show temporary popup message over button after 1s
       setTimeout(() => {
-        console.log('Temporary message over button would be shown here.');
+        // console.log('Temporary message over button would be shown here.');
         this.showTemporaryMessageOverButton();
       }, 1000);
 
@@ -1789,7 +1788,7 @@
       `;
       }).join('');
 
-      
+
       const dots = (this.config.sliderImages || this.config.slider_images || []).map((_, idx) => `
         <button class="fpt-slider-dot ${idx === 0 ? 'active' : ''}" data-index="${idx}"></button>
       `).join('');
@@ -2320,7 +2319,6 @@
 
         const wsUrl = wsUrlObj.toString();
 
-        console.log('Connecting to Chatbot Proxy:', wsUrl);
         this.proxySocket = new WebSocket(wsUrl);
         this.proxyReady = false;
 
@@ -2577,22 +2575,22 @@
         // Parse sources from the message text - porting logic from Chatbot.tsx
         // Pattern 1: **Source List of Response:** (with colon)
         let sourceListMatch = messageText.match(/\*\*Source List of Response:\*\*([\s\S]*?)$/i);
-        
+
         // Pattern 2: **Source List of Response** (without colon)
         if (!sourceListMatch) {
           sourceListMatch = messageText.match(/\*\*Source List of Response\*\*([\s\S]*?)$/i);
         }
-        
+
         // Pattern 3: **Sources:** or **References:**
         if (!sourceListMatch) {
           sourceListMatch = messageText.match(/\*\*(Sources?|References?):\*\*([\s\S]*?)$/i);
         }
-        
+
         // Pattern 4: Just "Sources:" without asterisks
         if (!sourceListMatch) {
           sourceListMatch = messageText.match(/Sources?:\s*([\s\S]*?)$/i);
         }
-        
+
         // Pattern 5: Alternative patterns for variations
         if (!sourceListMatch) {
           sourceListMatch = messageText.match(/Source List of Response:\s*([\s\S]*?)$/i);
@@ -2624,13 +2622,13 @@
                 };
                 parsedSources.push(source);
               }
-            } 
+            }
             // Pattern C: Lines with URLs (with or without bullets/dashes)
             else if (line.includes('http')) {
               const urlMatch = line.match(/https?:\/\/[^\s\)]+/);
-              const titleMatch = line.match(/\*\*([^*]+)\*\*/) || 
-                               line.match(/[-•*]\s*(.+?)(?=https?:|$)/) ||
-                               line.match(/^(.+?)(?=https?:|$)/);
+              const titleMatch = line.match(/\*\*([^*]+)\*\*/) ||
+                line.match(/[-•*]\s*(.+?)(?=https?:|$)/) ||
+                line.match(/^(.+?)(?=https?:|$)/);
 
               if (urlMatch) {
                 const source = {
@@ -2672,11 +2670,11 @@
         };
         this.messages.push(message);
         this.renderMessage(message);
-        
+
         if (allSources.length > 0) {
           this.updateSources(allSources);
         }
-        
+
         this.scrollToBottom();
         this.updateLeadSession(message, allSources);
       }
@@ -2902,7 +2900,7 @@
 
     updateSources(sources = []) {
       if (!this.sourcesListEl) return;
-      
+
       // Store sources with message association to slice them like React component
       if (!this.allMessageSources) this.allMessageSources = [];
       if (sources.length > 0) {
@@ -2911,7 +2909,7 @@
 
       // Keep sources from last 3 bot messages
       const recentSourcesGroups = this.allMessageSources.slice(-3);
-      
+
       let sourcesHtml = '';
       const seenSources = new Set();
       recentSourcesGroups.forEach((group) => {
