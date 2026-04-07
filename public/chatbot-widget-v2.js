@@ -2898,13 +2898,52 @@
         .trim();
     }
 
+    normalizeSource(source) {
+      if (!source || typeof source !== 'object') return null;
+
+      const cleanTitle = this.cleanSourceText(source.title);
+      const cleanUrl = this.cleanSourceText(source.url);
+      const hasBlockedMarker = /blocked due to organization policy/i.test(cleanTitle) || /blocked due to organization policy/i.test(cleanUrl);
+
+      let normalizedUrl = '';
+      if (cleanUrl) {
+        const urlMatch = cleanUrl.match(/https?:\/\/[^\s"'<>]+/i);
+        if (urlMatch) {
+          try {
+            normalizedUrl = new URL(urlMatch[0]).toString();
+          } catch (err) {
+            normalizedUrl = '';
+          }
+        }
+      }
+
+      const normalizedTitle = cleanTitle
+        .replace(/^sources?\s*/i, '')
+        .replace(/^what's\s*/i, '')
+        .trim();
+
+      if (hasBlockedMarker) return null;
+      if (!normalizedUrl && !normalizedTitle) return null;
+      if (!normalizedUrl && normalizedTitle.length < 4) return null;
+      if (normalizedUrl && /^https?:\/\/go\.microsoft\.com\/fwlink/i.test(normalizedUrl) && !normalizedTitle) return null;
+
+      return {
+        title: normalizedTitle || 'Source',
+        url: normalizedUrl || undefined
+      };
+    }
+
     updateSources(sources = []) {
       if (!this.sourcesListEl) return;
 
+      const normalizedSources = (Array.isArray(sources) ? sources : [])
+        .map((source) => this.normalizeSource(source))
+        .filter(Boolean);
+
       // Store sources with message association to slice them like React component
       if (!this.allMessageSources) this.allMessageSources = [];
-      if (sources.length > 0) {
-        this.allMessageSources.push(sources);
+      if (normalizedSources.length > 0) {
+        this.allMessageSources.push(normalizedSources);
       }
 
       // Keep sources from last 3 bot messages
