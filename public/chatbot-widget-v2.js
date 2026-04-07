@@ -2901,9 +2901,13 @@
     normalizeSource(source) {
       if (!source || typeof source !== 'object') return null;
 
+      const rawTitle = String(source.title || '');
+      const rawUrl = String(source.url || '');
       const cleanTitle = this.cleanSourceText(source.title);
       const cleanUrl = this.cleanSourceText(source.url);
       const hasBlockedMarker = /blocked due to organization policy/i.test(cleanTitle) || /blocked due to organization policy/i.test(cleanUrl);
+      const hasBlockedSourceMarker = /blocked due to organization policy|what'?s this url was blocked/i.test(rawTitle) ||
+        /blocked due to organization policy|what'?s this url was blocked/i.test(rawUrl);
 
       let normalizedUrl = '';
       if (cleanUrl) {
@@ -2923,8 +2927,10 @@
         .trim();
 
       if (hasBlockedMarker) return null;
+      if (hasBlockedSourceMarker) return null;
       if (!normalizedUrl && !normalizedTitle) return null;
       if (!normalizedUrl && normalizedTitle.length < 4) return null;
+      if (/^https?:\/\/go\.microsoft\.com\/fwlink/i.test(normalizedUrl) && /^(source|what'?s?)$/i.test(normalizedTitle || '')) return null;
       if (normalizedUrl && /^https?:\/\/go\.microsoft\.com\/fwlink/i.test(normalizedUrl) && !normalizedTitle) return null;
 
       return {

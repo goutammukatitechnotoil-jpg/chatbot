@@ -375,6 +375,12 @@ async function generateDirectLineToken({ tokenEndpoint, botSecret, defaultTokenE
     );
   }
 
+  if (lastStatus === 504) {
+    throw new Error(
+      'Direct Line token endpoint timed out (504). Verify the configured token endpoint is reachable and the Direct Line secret is valid.'
+    );
+  }
+
   throw new Error(
     `Failed to generate Direct Line token: ${lastStatus || 'unknown'} ${lastBody || ''}`.trim()
   );

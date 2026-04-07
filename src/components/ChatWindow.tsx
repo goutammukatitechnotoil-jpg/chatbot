@@ -280,9 +280,12 @@ export function ChatWindow({
         console.log('✅ New lead created with form submission data');
       }
 
-      // Show success confirmation
+      // Close and reset the custom form after a successful submission
       setFormSubmitting(false);
-      setFormSuccess(true);
+      setFormSuccess(false);
+      setShowForm(false);
+      setActiveForm(null);
+      setFormFields([]);
 
       // Optional: Send a message to the chat after successful submission
       await onSendMessage(`Form submitted: ${activeForm?.form_name}`);

@@ -24,6 +24,24 @@ export class DirectLineService {
   private onMessageReceived: ((activity: Activity) => void) | null = null;
   private pendingActivities: Activity[] = [];
 
+  private normalizeProxyErrorMessage(message: string): string {
+    const text = (message || '').trim();
+
+    if (/Failed to generate Direct Line token:\s*504/i.test(text) || /"code"\s*:\s*"UnexpectedError"/i.test(text)) {
+      return 'Chatbot connection failed while requesting a Direct Line token. Please verify the configured token endpoint and Direct Line secret, then try again.';
+    }
+
+    if (/Missing Direct Line secret/i.test(text)) {
+      return 'Chatbot connection is not configured. Set a valid Direct Line secret or token endpoint and try again.';
+    }
+
+    if (/Direct Line authentication failed \(403\)/i.test(text)) {
+      return 'Chatbot authentication failed. Please verify the Direct Line secret configured for this environment.';
+    }
+
+    return text || 'Messaging service unavailable';
+  }
+
   constructor(tokenEndpoint?: string) {
     this.tokenEndpoint = tokenEndpoint || '';
     console.log('DirectLineService initialized for WebSocket Proxy');
@@ -63,7 +81,7 @@ export class DirectLineService {
         console.log('Connecting DirectLineService to Proxy:', wsUrl);
         this.socket = new WebSocket(wsUrl);
 
-        const timeout = setTimeout(() => {e
+        const timeout = setTimeout(() => {
           if (this.socket?.readyState !== WebSocket.OPEN) {
             this.socket?.close();
             settleReject(new Error('Connection timeout while connecting to chatbot proxy'));
@@ -92,7 +110,8 @@ export class DirectLineService {
           } else if (data.type === 'error') {
             clearTimeout(timeout);
             this.socket?.close();
-            const errorText = typeof data.text === 'string' ? data.text : 'Messaging service unavailable';
+            const rawErrorText = typeof data.text === 'string' ? data.text : 'Messaging service unavailable';
+            const errorText = this.normalizeProxyErrorMessage(rawErrorText);
             settleReject(new Error(errorText));
           } else if (data.type === 'bot_message' && this.onMessageReceived) {
             const activity: Activity = {

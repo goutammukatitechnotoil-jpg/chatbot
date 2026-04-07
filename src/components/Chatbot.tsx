@@ -34,6 +34,62 @@ import { ContentService, ChatbotContent } from '../services/contentService';
 
 // All content now comes from API/database - no hardcoded fallbacks needed
 
+function cleanSourceText(value?: string) {
+  return String(value || '')
+    .replace(/<a\b[^>]*>/gi, ' ')
+    .replace(/<\/a>/gi, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/(?:target|rel|href)\s*=\s*['"][^'"]*['"]/gi, ' ')
+    .replace(/(?:target|rel|href)\s*=\s*[^\s>]+/gi, ' ')
+    .replace(/window\.open\s*\([^)]*\)/gi, ' ')
+    .replace(/_blank|noopener|noreferrer/gi, ' ')
+    .replace(/&quot;|&#34;|&#39;|&apos;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/^['"\s>]+|['"\s>]+$/g, '')
+    .trim();
+}
+
+function normalizeSource(source?: Source | null): Source | null {
+  if (!source) return null;
+
+  const rawTitle = String(source.title || '');
+  const rawUrl = String(source.url || '');
+  const cleanTitle = cleanSourceText(source.title);
+  const cleanUrl = cleanSourceText(source.url);
+  const hasBlockedMarker = /blocked due to organization policy/i.test(cleanTitle) || /blocked due to organization policy/i.test(cleanUrl);
+  const hasBlockedSourceMarker = /blocked due to organization policy|what'?s this url was blocked/i.test(rawTitle) ||
+    /blocked due to organization policy|what'?s this url was blocked/i.test(rawUrl);
+
+  let normalizedUrl = '';
+  if (cleanUrl) {
+    const urlMatch = cleanUrl.match(/https?:\/\/[^\s"'<>]+/i);
+    if (urlMatch) {
+      try {
+        normalizedUrl = new URL(urlMatch[0]).toString();
+      } catch (error) {
+        normalizedUrl = '';
+      }
+    }
+  }
+
+  const normalizedTitle = cleanTitle
+    .replace(/^sources?\s*/i, '')
+    .replace(/^what's\s*/i, '')
+    .trim();
+
+  if (hasBlockedMarker) return null;
+  if (hasBlockedSourceMarker) return null;
+  if (!normalizedUrl && !normalizedTitle) return null;
+  if (!normalizedUrl && normalizedTitle.length < 4) return null;
+  if (/^https?:\/\/go\.microsoft\.com\/fwlink/i.test(normalizedUrl) && /^(source|what'?s?)$/i.test(normalizedTitle || '')) return null;
+  if (normalizedUrl && /^https?:\/\/go\.microsoft\.com\/fwlink/i.test(normalizedUrl) && !normalizedTitle) return null;
+
+  return {
+    title: normalizedTitle || 'Source',
+    url: normalizedUrl || undefined,
+  };
+}
+
 export function Chatbot() {
   const { config } = useChatbotConfig();
   const [isOpen, setIsOpen] = useState(false);
@@ -49,6 +105,10 @@ export function Chatbot() {
   const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   const sentMessageIdsRef = useRef<Set<string>>(new Set());
   const recentSentMessagesRef = useRef<Array<{text: string, timestamp: number}>>([]);
+  const botResponseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pendingAdaptiveCardConfirmationRef = useRef(false);
+  const suppressAdaptiveCardsUntilRef = useRef(0);
+  const hasSubmittedAdaptiveCardFormRef = useRef(false);
 
   useEffect(() => {
     directLineService.setTokenEndpoint(config.tokenEndpoint);
@@ -88,8 +148,36 @@ export function Chatbot() {
       if (pollingInterval) {
         clearInterval(pollingInterval);
       }
+      if (botResponseTimeoutRef.current) {
+        clearTimeout(botResponseTimeoutRef.current);
+      }
     };
-  }, [isOpen, isInitialized, directLineService, config.locale, config.autoDetectLocale]);
+  }, [isOpen, isInitialized, directLineService, config.locale, config.autoDetectLocale, pollingInterval]);
+
+  const clearBotResponseTimeout = useCallback(() => {
+    if (botResponseTimeoutRef.current) {
+      clearTimeout(botResponseTimeoutRef.current);
+      botResponseTimeoutRef.current = null;
+    }
+  }, []);
+
+  const startBotResponseWaiting = useCallback(() => {
+    setIsBotTyping(true);
+    setAwaitingResponseSince(Date.now());
+    clearBotResponseTimeout();
+    botResponseTimeoutRef.current = setTimeout(() => {
+      setIsBotTyping(false);
+      setAwaitingResponseSince(null);
+      botResponseTimeoutRef.current = null;
+      console.log('Auto-hiding typing indicator after timeout');
+    }, 30000);
+  }, [clearBotResponseTimeout]);
+
+  const stopBotResponseWaiting = useCallback(() => {
+    clearBotResponseTimeout();
+    setIsBotTyping(false);
+    setAwaitingResponseSince(null);
+  }, [clearBotResponseTimeout]);
 
   const startPolling = useCallback(() => {
     console.log('Starting polling loop...');
@@ -332,7 +420,34 @@ export function Chatbot() {
                 });
               }
 
-              const allSources = parsedSources.length > 0 ? parsedSources : attachmentSources;
+              if (hasSubmittedAdaptiveCardFormRef.current || Date.now() < suppressAdaptiveCardsUntilRef.current) {
+                const filteredAttachments = processedAttachments.filter(
+                  (attachment) => attachment.contentType !== 'application/vnd.microsoft.card.adaptive'
+                );
+
+                if (filteredAttachments.length !== processedAttachments.length) {
+                  console.log('Ignoring adaptive card reopen after form submission');
+                  processedAttachments = filteredAttachments;
+                }
+              }
+
+              if (pendingAdaptiveCardConfirmationRef.current) {
+                const hadAdaptiveCardAttachment = processedAttachments.some(
+                  (attachment) => attachment.contentType === 'application/vnd.microsoft.card.adaptive'
+                );
+
+                if (hadAdaptiveCardAttachment || !messageText.trim()) {
+                  pendingAdaptiveCardConfirmationRef.current = false;
+                  console.log('Ignoring post-submit adaptive card response');
+                  return prev;
+                }
+
+                pendingAdaptiveCardConfirmationRef.current = false;
+              }
+
+              const allSources = (parsedSources.length > 0 ? parsedSources : attachmentSources)
+                .map((source) => normalizeSource(source))
+                .filter((source): source is Source => Boolean(source));
 
               console.log('Original message:', activity.text);
               console.log('Cleaned message:', messageText);
@@ -346,8 +461,7 @@ export function Chatbot() {
               }
 
               // Hide typing indicator immediately when bot message is added
-              setIsBotTyping(false);
-              setAwaitingResponseSince(null);
+              stopBotResponseWaiting();
               console.log('Bot response received, hiding typing indicator');
 
               // Note: Auto-trigger functionality has been removed to focus on lead tracking
@@ -387,9 +501,9 @@ export function Chatbot() {
 
     poll();
 
-    const intervalId = setInterval(poll, 2000);
+    const intervalId = setInterval(poll, 400);
     setPollingInterval(intervalId);
-  }, [sentMessageIds, recentSentMessages, directLineService, config, awaitingResponseSince]);
+  }, [sentMessageIds, recentSentMessages, directLineService, config, awaitingResponseSince, stopBotResponseWaiting]);
 
   const handleSendMessage = async (text: string) => {
     console.log('📤📤📤 USER SENDING MESSAGE:', text);
@@ -410,16 +524,8 @@ export function Chatbot() {
       }
     });
 
-    setIsBotTyping(true);
-    setAwaitingResponseSince(Date.now());
+    startBotResponseWaiting();
     console.log('Showing bot typing indicator');
-
-    // Auto-hide typing indicator after 30 seconds if no response
-    setTimeout(() => {
-      setIsBotTyping(false);
-      setAwaitingResponseSince(null);
-      console.log('Auto-hiding typing indicator after timeout');
-    }, 30000);
 
     try {
       const response = await directLineService.sendMessage(text);
@@ -455,8 +561,7 @@ export function Chatbot() {
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      setIsBotTyping(false);
-      setAwaitingResponseSince(null);
+      stopBotResponseWaiting();
       setMessages((prev) => [
         ...prev,
         {
@@ -473,8 +578,9 @@ export function Chatbot() {
     console.log('Adaptive Card submitted with data:', data);
     
     // Show typing indicator for adaptive card submissions
-    setIsBotTyping(true);
-    setAwaitingResponseSince(Date.now());
+    startBotResponseWaiting();
+    pendingAdaptiveCardConfirmationRef.current = true;
+    suppressAdaptiveCardsUntilRef.current = Date.now() + 15000;
     
     // Let DirectLine handle adaptive card submissions natively without interference
     try {
@@ -483,11 +589,23 @@ export function Chatbot() {
       
       // Capture lead data from adaptive card submission
       await captureAdaptiveCardLead(data);
+      hasSubmittedAdaptiveCardFormRef.current = true;
+
+      stopBotResponseWaiting();
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `adaptive-confirmation-${Date.now()}`,
+          text: 'A designated contact person will get in touch with you shortly.',
+          sender: 'bot',
+          timestamp: new Date(),
+        },
+      ]);
       
     } catch (error) {
       console.error('Error sending adaptive card action:', error);
-      setIsBotTyping(false);
-      setAwaitingResponseSince(null);
+      pendingAdaptiveCardConfirmationRef.current = false;
+      stopBotResponseWaiting();
       setMessages((prev) => [
         ...prev,
         {
