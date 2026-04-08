@@ -28,6 +28,11 @@ export interface ChatbotContent {
 // Safe JSON parsing helper
 async function safeJsonParse(response: Response) {
   const text = await response.text();
+
+  if (response.status === 304) {
+    throw new Error('Received 304 Not Modified for JSON request. Disable browser caching or use no-store for API requests.');
+  }
+
   try {
     return JSON.parse(text);
   } catch (error) {
@@ -44,13 +49,18 @@ export class ContentService {
     try {
       const response = await fetch(API_BASE_URL, {
         method: 'GET',
+        cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch content: ${response.statusText}`);
+        const text = await response.text();
+        if (text.startsWith('<!DOCTYPE') || text.includes('<html>')) {
+          throw new Error(`Failed to fetch content: ${response.status} ${response.statusText} - Received HTML response`);
+        }
+        throw new Error(`Failed to fetch content: ${response.status} ${response.statusText} - ${text}`);
       }
 
       const data = await safeJsonParse(response);

@@ -435,7 +435,7 @@ export function ChatWindow({
               {isBotTyping && (
                 <div className="flex gap-3">
                   <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                    <img src="/FPTSoftware.png" alt="FPT" className="w-full h-full object-contain p-0.5" />
+                    <img src={config.logoUrl} alt="Bot" className="w-full h-full object-contain p-0.5" />
                   </div>
                   <div className="bg-gray-100 px-4 py-3 rounded-lg">
                     <div className="flex gap-1">

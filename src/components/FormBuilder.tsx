@@ -74,8 +74,12 @@ export function FormBuilder({ formId, onSave }: FormBuilderProps) {
     setIsLoading(true, 'Loading form details...');
     try {
       const formData = await formService.getFormById(formId);
+      if (!formData) {
+        console.warn(`Form not found: ${formId}`);
+        return;
+      }
       const formFields = await formService.getFormFields(formId);
-      if (formData) setForm(formData);
+      setForm(formData);
       // If tenant config has defaults for terms/privacy, use them when the form doesn't provide values
       try {
         const cfg = await ConfigService.getConfig();
