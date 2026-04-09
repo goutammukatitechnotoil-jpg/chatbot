@@ -3,18 +3,6 @@ const nextConfig = {
   reactStrictMode: true,
   turbopack: {},
   serverExternalPackages: ['mongodb'],
-  // Configure HMR for development
-  webpackDevMiddleware: {
-    watchOptions: {
-      poll: 1000,
-      aggregateTimeout: 300,
-    }
-  },
-  // Configure HMR settings
-  onDemandEntries: {
-    maxInactiveAge: 60 * 60 * 1000,
-    pagesBufferLength: 5,
-  },
   webpack: (config, { isServer, dev }) => {
     if (!isServer) {
       // Configure HMR for client-side development

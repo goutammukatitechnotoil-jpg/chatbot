@@ -48,8 +48,10 @@ import { AnalyticsMetrics, FunnelStage } from '../types/analytics';
 import { formService } from '../services/formService';
 import { CustomForm } from '../types/forms';
 import { ContentService } from '../services/contentService';
+import { releaseService, Release } from '../services/releaseService';
 import { ConfigService } from '../services/configService';
 import SystemSettingsService from '../services/systemSettingsService';
+import { AppearanceService } from '../services/appearanceService';
 import Swal from 'sweetalert2';
 
 interface SliderImage {
@@ -1210,12 +1212,17 @@ function SentencesView({
 // Appearance View Component
 function AppearanceView({ canEdit, isLoading }: { canEdit?: boolean; isLoading?: boolean }) {
   const { config, updateConfig } = useChatbotConfig();
+  const { tenant } = useTenant();
   const [localConfig, setLocalConfig] = useState(config);
   const [isSavingAppearance, setIsSavingAppearance] = useState(false);
+  const [drafts, setDrafts] = useState<any[]>([]);
+  const [isLoadingDrafts, setIsLoadingDrafts] = useState(false);
+  const [releases, setReleases] = useState<Release[]>([]);
 
   useEffect(() => {
-
     setLocalConfig(config);
+    loadDrafts();
+    loadReleases();
   }, [config]);
 
   const predefinedColors = [
@@ -1231,29 +1238,260 @@ function AppearanceView({ canEdit, isLoading }: { canEdit?: boolean; isLoading?:
 
   const handleSave = async () => {
     if (!canEdit) return;
-    setIsLoading(true, 'Updating appearance settings...');
     setIsSavingAppearance(true);
     try {
-      console.log('Saving config:', localConfig);
-      await updateConfig(localConfig);
-      console.log('Config updated');
-      Swal.fire({
-        title: 'Success!',
-        text: 'Appearance settings saved! Changes will reflect in the chatbot.',
-        icon: 'success',
-        confirmButtonColor: '#f37021',
+      // Prompt for draft name
+      const { value: draftName } = await Swal.fire({
+        title: 'Save Appearance Settings as Draft',
+        input: 'text',
+        inputLabel: 'Enter a name for this draft',
+        inputPlaceholder: 'My Appearance Draft',
+        showCancelButton: true,
+        inputValidator: (value) => {
+          if (!value) {
+            return 'Draft name is required!';
+          }
+        }
       });
+
+      if (draftName) {
+        await AppearanceService.saveDraft('main', {
+          name: draftName,
+          colorTheme: localConfig.colorTheme,
+          headerColorTheme: localConfig.headerColorTheme,
+          logoUrl: localConfig.logoUrl,
+          iconType: localConfig.iconType,
+          chatbotName: localConfig.chatbotName,
+          quickQuestionsTitle: localConfig.quickQuestionsTitle,
+          triggerMessage: localConfig.triggerMessage,
+          botGreetingMessage: localConfig.botGreetingMessage,
+          popupTitle: localConfig.popupTitle,
+          popupDescription: localConfig.popupDescription
+        });
+
+        Swal.fire({
+          title: 'Success!',
+          text: 'Appearance settings saved as draft!',
+          icon: 'success',
+          confirmButtonColor: '#f37021',
+        });
+
+        loadDrafts(); // Reload drafts
+      }
     } catch (error) {
-      console.error('Appearance save failed:', error);
+      console.error('Draft save failed:', error);
       Swal.fire({
         title: 'Error!',
-        text: 'Failed to save appearance settings. Please try again.',
+        text: 'Failed to save draft. Please try again.',
         icon: 'error',
         confirmButtonColor: '#f37021',
       });
     } finally {
       setIsSavingAppearance(false);
-      setIsLoading(false);
+    }
+  };
+
+  const loadDrafts = async () => {
+    try {
+      setIsLoadingDrafts(true);
+      const draftList = await AppearanceService.getDrafts('main');
+      setDrafts(draftList);
+    } catch (error) {
+      console.error('Failed to load drafts:', error);
+    } finally {
+      setIsLoadingDrafts(false);
+    }
+  };
+
+  const loadReleases = async () => {
+    try {
+      const releaseList = await releaseService.getReleases();
+      setReleases(releaseList);
+    } catch (error) {
+      console.error('Failed to load releases:', error);
+    }
+  };
+
+  const handleLoadDraft = async (draft: any) => {
+    const result = await Swal.fire({
+      title: 'Apply Draft',
+      text: `Apply draft "${draft.name}"? This will update the test chatbot configuration.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#f37021',
+      cancelButtonColor: '#6b7280',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        // Apply draft to test configuration
+        await ConfigService.updateConfig({
+          colorTheme: draft.colorTheme,
+          headerColorTheme: draft.headerColorTheme,
+          logoUrl: draft.logoUrl,
+          iconType: draft.iconType,
+          chatbotName: draft.chatbotName,
+          quickQuestionsTitle: draft.quickQuestionsTitle,
+          triggerMessage: draft.triggerMessage,
+          botGreetingMessage: draft.botGreetingMessage,
+          popupTitle: draft.popupTitle,
+          popupDescription: draft.popupDescription
+        }, 'test');
+
+        Swal.fire({
+          title: 'Draft Applied',
+          text: 'Draft settings have been applied to the test chatbot. Visit /test-chatbot to see the changes.',
+          icon: 'success',
+          confirmButtonColor: '#f37021',
+        });
+      } catch (error) {
+        console.error('Failed to apply draft:', error);
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to apply draft to test configuration.',
+          icon: 'error',
+          confirmButtonColor: '#f37021',
+        });
+      }
+    }
+  };
+
+  const handlePublishDraft = async (draft: any) => {
+    // First ask for release notes
+    const { value: releaseNotes } = await Swal.fire({
+      title: 'Publish Draft',
+      input: 'textarea',
+      inputLabel: `Release notes for "${draft.name}"`,
+      inputPlaceholder: 'Describe what changes are being published...',
+      inputValidator: (value) => {
+        if (!value) {
+          return 'Release notes are required!';
+        }
+      },
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280',
+    });
+
+    if (releaseNotes) {
+      const confirmResult = await Swal.fire({
+        title: 'Confirm Publish',
+        text: `Publish draft "${draft.name}" to live chatbot? This will make the changes visible to all users.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#10b981',
+        cancelButtonColor: '#6b7280',
+      });
+
+      if (confirmResult.isConfirmed) {
+        try {
+          // Copy test config to live config
+          const testConfig = await ConfigService.getConfig(false, 'test');
+          await ConfigService.updateConfig(testConfig, 'live');
+
+          // Create release record
+          await releaseService.createRelease(draft._id, draft.name, releaseNotes);
+
+          // Reload releases to show the new one
+          await loadReleases();
+
+          Swal.fire({
+            title: 'Draft Published',
+            text: 'Draft settings have been published to the live chatbot.',
+            icon: 'success',
+            confirmButtonColor: '#f37021',
+          });
+        } catch (error) {
+          console.error('Failed to publish draft:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Failed to publish draft. Please try again.',
+            icon: 'error',
+            confirmButtonColor: '#f37021',
+          });
+        }
+      }
+    }
+  };
+
+  const handleRevertRelease = async (release: Release) => {
+    const result = await Swal.fire({
+      title: 'Revert to Release',
+      text: `Revert to release "${release.draftName}"? This will update the live chatbot to use this previous version.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#f37021',
+      cancelButtonColor: '#6b7280',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        // Load the draft configuration and apply it to live
+        const draft = await AppearanceService.getDraftById(release.draftId);
+        if (draft) {
+          await ConfigService.updateConfig({
+            colorTheme: draft.colorTheme,
+            headerColorTheme: draft.headerColorTheme,
+            logoUrl: draft.logoUrl,
+            iconType: draft.iconType,
+            chatbotName: draft.chatbotName,
+            quickQuestionsTitle: draft.quickQuestionsTitle,
+            triggerMessage: draft.triggerMessage,
+            botGreetingMessage: draft.botGreetingMessage,
+            popupTitle: draft.popupTitle,
+            popupDescription: draft.popupDescription
+          }, 'live');
+
+          Swal.fire({
+            title: 'Reverted Successfully',
+            text: `Chatbot has been reverted to release "${release.draftName}".`,
+            icon: 'success',
+            confirmButtonColor: '#f37021',
+          });
+        } else {
+          throw new Error('Draft not found');
+        }
+      } catch (error) {
+        console.error('Failed to revert release:', error);
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to revert to the selected release. Please try again.',
+          icon: 'error',
+          confirmButtonColor: '#f37021',
+        });
+      }
+    }
+  };
+
+  const handleDeleteDraft = async (draftId: string) => {
+    const result = await Swal.fire({
+      title: 'Delete Draft',
+      text: 'Are you sure you want to delete this draft?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await AppearanceService.deleteDraft('main', draftId);
+        loadDrafts(); // Reload drafts
+        Swal.fire({
+          title: 'Deleted',
+          text: 'Draft has been deleted.',
+          icon: 'success',
+          confirmButtonColor: '#f37021',
+        });
+      } catch (error) {
+        console.error('Failed to delete draft:', error);
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to delete draft.',
+          icon: 'error',
+          confirmButtonColor: '#f37021',
+        });
+      }
     }
   };
 
@@ -2000,8 +2238,8 @@ function AppearanceView({ canEdit, isLoading }: { canEdit?: boolean; isLoading?:
         </div>
       )}
 
-      {/* Save Button */}
-      <div className="flex justify-end pt-4">
+      {/* Save Buttons */}
+      <div className="flex justify-end gap-3 pt-4">
         <button
           onClick={handleSave}
           disabled={!canEdit || isSavingAppearance}
@@ -2012,6 +2250,129 @@ function AppearanceView({ canEdit, isLoading }: { canEdit?: boolean; isLoading?:
           <Save className="w-5 h-5" />
           {isSavingAppearance ? 'Saving...' : 'Save Appearance Settings'}
         </button>
+      </div>
+
+      {/* Saved Drafts Section */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
+        <h3 className="text-lg font-bold text-gray-900 mb-4">Saved Drafts</h3>
+        <p className="text-sm text-gray-600 mb-6">
+          Your saved appearance drafts. Click "Apply" to test changes in /test-chatbot, or "Publish" to make them live for all users.
+        </p>
+
+        {isLoadingDrafts ? (
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="h-16 bg-gray-100 rounded-lg"></div>
+              </div>
+            ))}
+          </div>
+        ) : drafts.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No drafts saved yet.</p>
+            <p className="text-sm text-gray-400 mt-1">Use "Save Appearance Settings" to save your current settings as a draft.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {drafts.map((draft) => {
+              const isPublished = releases.some(release => release.draftId === draft._id);
+              return (
+                <div key={draft._id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="font-semibold text-gray-900">{draft.name}</h4>
+                      {isPublished && (
+                        <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
+                          Published
+                        </span>
+                      )}
+                    </div>
+                  <p className="text-sm text-gray-500">
+                    Saved on {new Date(draft.created_at).toLocaleDateString()} at {new Date(draft.created_at).toLocaleTimeString()}
+                  </p>
+                  <div className="flex items-center gap-4 mt-2">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-4 h-4 rounded-full border border-gray-300"
+                        style={{ backgroundColor: draft.colorTheme }}
+                      />
+                      <span className="text-xs text-gray-600">Primary: {draft.colorTheme}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-4 h-4 rounded-full border border-gray-300"
+                        style={{ backgroundColor: draft.headerColorTheme }}
+                      />
+                      <span className="text-xs text-gray-600">Header: {draft.headerColorTheme}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleLoadDraft(draft)}
+                    className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                  >
+                    Apply
+                  </button>
+                  <button
+                    onClick={() => handlePublishDraft(draft)}
+                    className="px-3 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                  >
+                    Publish
+                  </button>
+                  <button
+                    onClick={() => handleDeleteDraft(draft._id)}
+                    className="px-3 py-1.5 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Published Releases Section */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
+        <h3 className="text-lg font-bold text-gray-900 mb-4">Published Releases</h3>
+        <p className="text-sm text-gray-600 mb-6">
+          Previously published versions. Click "Revert" to rollback to a previous release.
+        </p>
+
+        {releases.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No releases published yet.</p>
+            <p className="text-sm text-gray-400 mt-1">Publish a draft to create your first release.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {releases.map((release) => (
+              <div key={release._id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                <div className="flex-1">
+                  <h4 className="font-semibold text-gray-900">{release.draftName}</h4>
+                  <p className="text-sm text-gray-500">
+                    Published on {new Date(release.published_at).toLocaleDateString()} at {new Date(release.published_at).toLocaleTimeString()}
+                  </p>
+                  {release.releaseNotes && (
+                    <p className="text-sm text-gray-600 mt-2 italic">
+                      "{release.releaseNotes}"
+                    </p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleRevertRelease(release)}
+                    className="px-3 py-1.5 text-sm bg-orange-600 text-white rounded hover:bg-orange-700 transition-colors"
+                  >
+                    Revert
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

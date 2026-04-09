@@ -67,6 +67,7 @@ export function ChatbotConfigProvider({ children }: { children: ReactNode }) {
         const urlParams = new URLSearchParams(window.location.search);
         const configKey = urlParams.get('configKey');
         const isEmbedded = urlParams.get('embedded') === 'true';
+        const isTestMode = sessionStorage.getItem('activeTab') === 'test';
 
         if (configKey && isEmbedded) {
           // Embedded mode: load config using the config key
@@ -83,9 +84,10 @@ export function ChatbotConfigProvider({ children }: { children: ReactNode }) {
             throw new Error('Failed to load embedded config');
           }
         } else {
-          // Admin mode: load config normally
-          const apiConfig = await ConfigService.getConfig();
-          console.log('Config loaded from API:', apiConfig);
+          // Admin mode: load config based on mode (test or live)
+          const mode = isTestMode ? 'test' : 'live';
+          const apiConfig = await ConfigService.getConfig(false, mode);
+          console.log(`Config loaded from API (${mode} mode):`, apiConfig);
           setConfig(apiConfig);
 
           // Optional: Also save to localStorage as backup
