@@ -131,8 +131,15 @@ export function AdminPanel() {
   }, []);
 
   const loadForms = async () => {
-    const loadedForms = await formService.getForms();
-    setForms(loadedForms);
+    try {
+      const loadedForms = await formService.getForms();
+      setForms(loadedForms);
+    } catch (error: any) {
+      if (error?.status === 401 || error?.message?.includes('401')) {
+        await logout();
+      }
+      console.error('Failed to load forms:', error);
+    }
   };
 
   const loadContent = async () => {
@@ -153,11 +160,12 @@ export function AdminPanel() {
         order_index: index + 1
       }));
 
-
-
       setSliders(formattedSliders);
       setSentences(formattedSentences);
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.status === 401 || error?.message?.includes('401')) {
+        await logout();
+      }
       console.error('Failed to load content:', error);
     } finally {
       setContentLoading(false);
