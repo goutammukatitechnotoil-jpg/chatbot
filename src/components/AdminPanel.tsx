@@ -1752,7 +1752,7 @@ function AppearanceView({ canEdit, isLoading }: { canEdit?: boolean; isLoading?:
               type="text"
               value={localConfig.chatbotName}
               onChange={(e) => setLocalConfig({ ...localConfig, chatbotName: e.target.value })}
-              placeholder="FPT AI Assistant"
+              placeholder="AI Assistant"
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f37021] focus:border-transparent"
             />
             <p className="mt-2 text-xs text-gray-500">
