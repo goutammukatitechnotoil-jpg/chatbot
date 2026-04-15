@@ -17,7 +17,7 @@
     colorTheme: '#f37021',
     iconType: 'default',
     logoUrl: '',
-    chatbotName: 'FPT AI Assistant',
+    chatbotName: 'AI Assistant',
     welcomeMessage: 'Hello! How can I help you today?',
     locale: 'en-US',
     autoDetectLocale: false,

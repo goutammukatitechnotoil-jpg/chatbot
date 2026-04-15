@@ -34,7 +34,7 @@ const defaultConfig: ChatbotConfig = {
   headerColorTheme: '#f37021',
   logoUrl: '/FPTSoftware.png',
   iconType: 'default',
-  chatbotName: 'FPT AI Assistant',
+  chatbotName: 'AI Assistant',
   triggerMessage: 'Hi there! How can I help you today?',
   botGreetingMessage: 'Hello! I\'m your AI assistant. How can I help you today?',
   popupTitle: 'Need help? 👋🏻',
