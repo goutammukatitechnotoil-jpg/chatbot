@@ -38,10 +38,9 @@ async function safeJsonParse(response: Response) {
 }
 
 export class ConfigService {
-  static async getConfig(usePublicEndpoint = false, mode: 'live' | 'test' = 'live'): Promise<ChatbotConfig> {
+  static async getConfig(usePublicEndpoint = false): Promise<ChatbotConfig> {
     try {
-      const baseUrl = usePublicEndpoint ? PUBLIC_API_URL : API_BASE_URL;
-      const url = `${baseUrl}?mode=${mode}`;
+      const url = usePublicEndpoint ? PUBLIC_API_URL : API_BASE_URL;
       const response = await fetch(url, {
         method: 'GET',
         headers: {
@@ -52,7 +51,7 @@ export class ConfigService {
       // If the authenticated endpoint fails with 401, try the public endpoint
       if (!response.ok && response.status === 401 && !usePublicEndpoint) {
         console.warn('Authentication required for config, falling back to public config');
-        return this.getConfig(true, mode);
+        return this.getConfig(true);
       }
 
       if (!response.ok) {
@@ -67,10 +66,9 @@ export class ConfigService {
     }
   }
 
-  static async updateConfig(config: Partial<ChatbotConfig>, mode: 'live' | 'test' = 'live'): Promise<ChatbotConfig> {
+  static async updateConfig(config: Partial<ChatbotConfig>): Promise<ChatbotConfig> {
     try {
-      const url = `${API_BASE_URL}?mode=${mode}`;
-      const response = await fetch(url, {
+      const response = await fetch(API_BASE_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

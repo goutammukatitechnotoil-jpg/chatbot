@@ -237,4 +237,3 @@ export class DirectLineService {
     this.resetConversation();
   }
 }
- 

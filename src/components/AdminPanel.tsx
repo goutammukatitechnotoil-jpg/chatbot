@@ -48,10 +48,8 @@ import { AnalyticsMetrics, FunnelStage } from '../types/analytics';
 import { formService } from '../services/formService';
 import { CustomForm } from '../types/forms';
 import { ContentService } from '../services/contentService';
-import { releaseService, Release } from '../services/releaseService';
 import { ConfigService } from '../services/configService';
 import SystemSettingsService from '../services/systemSettingsService';
-import { AppearanceService } from '../services/appearanceService';
 import Swal from 'sweetalert2';
 
 interface SliderImage {
@@ -360,8 +358,8 @@ export function AdminPanel() {
                   key={item.id}
                   onClick={() => handleNavigation(item)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${activeTab === item.id
-                      ? 'bg-[#f37021] text-white shadow-sm'
-                      : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-[#f37021] text-white shadow-sm'
+                    : 'text-gray-700 hover:bg-gray-100'
                     }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -805,9 +803,8 @@ function SlidersView({
         <button
           onClick={addSlider}
           disabled={!canEdit}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-colors font-medium shadow-sm ${
-            canEdit ? 'bg-[#f37021] text-white hover:bg-[#d85a0a]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-          }`}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-colors font-medium shadow-sm ${canEdit ? 'bg-[#f37021] text-white hover:bg-[#d85a0a]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
         >
           <Plus className="w-4 h-4" />
           Add Slider
@@ -914,9 +911,8 @@ function SlidersView({
                 <button
                   onClick={() => removeSlider(index)}
                   disabled={!canEdit || !canDelete}
-                  className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-                    canEdit && canDelete ? 'text-red-600 hover:bg-red-50' : 'text-gray-300 cursor-not-allowed'
-                  }`}
+                  className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${canEdit && canDelete ? 'text-red-600 hover:bg-red-50' : 'text-gray-300 cursor-not-allowed'
+                    }`}
                   aria-label="Remove slider"
                 >
                   <Trash2 className="w-5 h-5" />
@@ -931,9 +927,8 @@ function SlidersView({
         <button
           onClick={handleSave}
           disabled={!canEdit || !canDelete || isSaving}
-          className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors font-semibold shadow-sm ${
-            canEdit && canDelete && !isSaving ? 'bg-black text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-          }`}
+          className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors font-semibold shadow-sm ${canEdit && canDelete && !isSaving ? 'bg-black text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
         >
           <Save className="w-5 h-5" />
           {isSaving ? 'Saving...' : 'Save Changes'}
@@ -1014,9 +1009,8 @@ function FormsView({
         <button
           onClick={handleCreateNew}
           disabled={!canEdit}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-colors font-medium shadow-sm ${
-            canEdit ? 'bg-[#f37021] text-white hover:bg-[#d85a0a]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-          }`}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-colors font-medium shadow-sm ${canEdit ? 'bg-[#f37021] text-white hover:bg-[#d85a0a]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
         >
           <Plus className="w-4 h-4" />
           Create New Form
@@ -1031,9 +1025,8 @@ function FormsView({
           <button
             onClick={handleCreateNew}
             disabled={!canEdit}
-            className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg transition-colors font-medium ${
-              canEdit ? 'bg-[#f37021] text-white hover:bg-[#d85a0a]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            }`}
+            className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg transition-colors font-medium ${canEdit ? 'bg-[#f37021] text-white hover:bg-[#d85a0a]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              }`}
           >
             <Plus className="w-5 h-5" />
             Create Your First Form
@@ -1071,9 +1064,8 @@ function FormsView({
                 <button
                   onClick={() => onSelectForm(form.id!)}
                   disabled={!canEdit}
-                  className={`flex-1 px-4 py-2 rounded-lg transition-colors font-medium flex items-center justify-center gap-2 ${
-                    canEdit ? 'bg-[#f37021] text-white hover:bg-[#d85a0a]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  }`}
+                  className={`flex-1 px-4 py-2 rounded-lg transition-colors font-medium flex items-center justify-center gap-2 ${canEdit ? 'bg-[#f37021] text-white hover:bg-[#d85a0a]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    }`}
                 >
                   <Edit className="w-4 h-4" />
                   Edit
@@ -1095,9 +1087,8 @@ function FormsView({
                     });
                   }}
                   disabled={!canDelete}
-                  className={`px-4 py-2 rounded-lg transition-colors font-medium ${
-                    canDelete ? 'border border-red-300 text-red-600 hover:bg-red-50' : 'border bg-gray-50 text-gray-300 cursor-not-allowed'
-                  }`}
+                  className={`px-4 py-2 rounded-lg transition-colors font-medium ${canDelete ? 'border border-red-300 text-red-600 hover:bg-red-50' : 'border bg-gray-50 text-gray-300 cursor-not-allowed'
+                    }`}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -1154,9 +1145,8 @@ function SentencesView({
         <button
           onClick={addSentence}
           disabled={!canEdit}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-colors font-medium shadow-sm ${
-            canEdit ? 'bg-[#f37021] text-white hover:bg-[#d85a0a]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-          }`}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-colors font-medium shadow-sm ${canEdit ? 'bg-[#f37021] text-white hover:bg-[#d85a0a]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
         >
           <Plus className="w-4 h-4" />
           Add Reply
@@ -1180,9 +1170,8 @@ function SentencesView({
               <button
                 onClick={() => canDelete && removeSentence(index)}
                 disabled={!canDelete}
-                className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-                  canDelete ? 'text-red-600 hover:bg-red-50' : 'text-gray-300 cursor-not-allowed'
-                }`}
+                className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${canDelete ? 'text-red-600 hover:bg-red-50' : 'text-gray-300 cursor-not-allowed'
+                  }`}
                 aria-label="Remove sentence"
               >
                 <Trash2 className="w-5 h-5" />
@@ -1196,9 +1185,8 @@ function SentencesView({
         <button
           onClick={onSave}
           disabled={!canEdit || isSaving}
-          className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors font-semibold shadow-sm ${
-            canEdit && !isSaving ? 'bg-black text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-          }`}
+          className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors font-semibold shadow-sm ${canEdit && !isSaving ? 'bg-black text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
         >
           <Save className="w-5 h-5" />
           {isSaving ? 'Saving...' : 'Save Changes'}
@@ -1212,17 +1200,12 @@ function SentencesView({
 // Appearance View Component
 function AppearanceView({ canEdit, isLoading }: { canEdit?: boolean; isLoading?: boolean }) {
   const { config, updateConfig } = useChatbotConfig();
-  const { tenant } = useTenant();
   const [localConfig, setLocalConfig] = useState(config);
   const [isSavingAppearance, setIsSavingAppearance] = useState(false);
-  const [drafts, setDrafts] = useState<any[]>([]);
-  const [isLoadingDrafts, setIsLoadingDrafts] = useState(false);
-  const [releases, setReleases] = useState<Release[]>([]);
 
   useEffect(() => {
+
     setLocalConfig(config);
-    loadDrafts();
-    loadReleases();
   }, [config]);
 
   const predefinedColors = [
@@ -1238,260 +1221,29 @@ function AppearanceView({ canEdit, isLoading }: { canEdit?: boolean; isLoading?:
 
   const handleSave = async () => {
     if (!canEdit) return;
+    setIsLoading(true, 'Updating appearance settings...');
     setIsSavingAppearance(true);
     try {
-      // Prompt for draft name
-      const { value: draftName } = await Swal.fire({
-        title: 'Save Appearance Settings as Draft',
-        input: 'text',
-        inputLabel: 'Enter a name for this draft',
-        inputPlaceholder: 'My Appearance Draft',
-        showCancelButton: true,
-        inputValidator: (value) => {
-          if (!value) {
-            return 'Draft name is required!';
-          }
-        }
+      console.log('Saving config:', localConfig);
+      await updateConfig(localConfig);
+      console.log('Config updated');
+      Swal.fire({
+        title: 'Success!',
+        text: 'Appearance settings saved! Changes will reflect in the chatbot.',
+        icon: 'success',
+        confirmButtonColor: '#f37021',
       });
-
-      if (draftName) {
-        await AppearanceService.saveDraft('main', {
-          name: draftName,
-          colorTheme: localConfig.colorTheme,
-          headerColorTheme: localConfig.headerColorTheme,
-          logoUrl: localConfig.logoUrl,
-          iconType: localConfig.iconType,
-          chatbotName: localConfig.chatbotName,
-          quickQuestionsTitle: localConfig.quickQuestionsTitle,
-          triggerMessage: localConfig.triggerMessage,
-          botGreetingMessage: localConfig.botGreetingMessage,
-          popupTitle: localConfig.popupTitle,
-          popupDescription: localConfig.popupDescription
-        });
-
-        Swal.fire({
-          title: 'Success!',
-          text: 'Appearance settings saved as draft!',
-          icon: 'success',
-          confirmButtonColor: '#f37021',
-        });
-
-        loadDrafts(); // Reload drafts
-      }
     } catch (error) {
-      console.error('Draft save failed:', error);
+      console.error('Appearance save failed:', error);
       Swal.fire({
         title: 'Error!',
-        text: 'Failed to save draft. Please try again.',
+        text: 'Failed to save appearance settings. Please try again.',
         icon: 'error',
         confirmButtonColor: '#f37021',
       });
     } finally {
       setIsSavingAppearance(false);
-    }
-  };
-
-  const loadDrafts = async () => {
-    try {
-      setIsLoadingDrafts(true);
-      const draftList = await AppearanceService.getDrafts('main');
-      setDrafts(draftList);
-    } catch (error) {
-      console.error('Failed to load drafts:', error);
-    } finally {
-      setIsLoadingDrafts(false);
-    }
-  };
-
-  const loadReleases = async () => {
-    try {
-      const releaseList = await releaseService.getReleases();
-      setReleases(releaseList);
-    } catch (error) {
-      console.error('Failed to load releases:', error);
-    }
-  };
-
-  const handleLoadDraft = async (draft: any) => {
-    const result = await Swal.fire({
-      title: 'Apply Draft',
-      text: `Apply draft "${draft.name}"? This will update the test chatbot configuration.`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#f37021',
-      cancelButtonColor: '#6b7280',
-    });
-
-    if (result.isConfirmed) {
-      try {
-        // Apply draft to test configuration
-        await ConfigService.updateConfig({
-          colorTheme: draft.colorTheme,
-          headerColorTheme: draft.headerColorTheme,
-          logoUrl: draft.logoUrl,
-          iconType: draft.iconType,
-          chatbotName: draft.chatbotName,
-          quickQuestionsTitle: draft.quickQuestionsTitle,
-          triggerMessage: draft.triggerMessage,
-          botGreetingMessage: draft.botGreetingMessage,
-          popupTitle: draft.popupTitle,
-          popupDescription: draft.popupDescription
-        }, 'test');
-
-        Swal.fire({
-          title: 'Draft Applied',
-          text: 'Draft settings have been applied to the test chatbot. Visit /test-chatbot to see the changes.',
-          icon: 'success',
-          confirmButtonColor: '#f37021',
-        });
-      } catch (error) {
-        console.error('Failed to apply draft:', error);
-        Swal.fire({
-          title: 'Error',
-          text: 'Failed to apply draft to test configuration.',
-          icon: 'error',
-          confirmButtonColor: '#f37021',
-        });
-      }
-    }
-  };
-
-  const handlePublishDraft = async (draft: any) => {
-    // First ask for release notes
-    const { value: releaseNotes } = await Swal.fire({
-      title: 'Publish Draft',
-      input: 'textarea',
-      inputLabel: `Release notes for "${draft.name}"`,
-      inputPlaceholder: 'Describe what changes are being published...',
-      inputValidator: (value) => {
-        if (!value) {
-          return 'Release notes are required!';
-        }
-      },
-      showCancelButton: true,
-      confirmButtonColor: '#10b981',
-      cancelButtonColor: '#6b7280',
-    });
-
-    if (releaseNotes) {
-      const confirmResult = await Swal.fire({
-        title: 'Confirm Publish',
-        text: `Publish draft "${draft.name}" to live chatbot? This will make the changes visible to all users.`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#10b981',
-        cancelButtonColor: '#6b7280',
-      });
-
-      if (confirmResult.isConfirmed) {
-        try {
-          // Copy test config to live config
-          const testConfig = await ConfigService.getConfig(false, 'test');
-          await ConfigService.updateConfig(testConfig, 'live');
-
-          // Create release record
-          await releaseService.createRelease(draft._id, draft.name, releaseNotes);
-
-          // Reload releases to show the new one
-          await loadReleases();
-
-          Swal.fire({
-            title: 'Draft Published',
-            text: 'Draft settings have been published to the live chatbot.',
-            icon: 'success',
-            confirmButtonColor: '#f37021',
-          });
-        } catch (error) {
-          console.error('Failed to publish draft:', error);
-          Swal.fire({
-            title: 'Error',
-            text: 'Failed to publish draft. Please try again.',
-            icon: 'error',
-            confirmButtonColor: '#f37021',
-          });
-        }
-      }
-    }
-  };
-
-  const handleRevertRelease = async (release: Release) => {
-    const result = await Swal.fire({
-      title: 'Revert to Release',
-      text: `Revert to release "${release.draftName}"? This will update the live chatbot to use this previous version.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#f37021',
-      cancelButtonColor: '#6b7280',
-    });
-
-    if (result.isConfirmed) {
-      try {
-        // Load the draft configuration and apply it to live
-        const draft = await AppearanceService.getDraftById(release.draftId);
-        if (draft) {
-          await ConfigService.updateConfig({
-            colorTheme: draft.colorTheme,
-            headerColorTheme: draft.headerColorTheme,
-            logoUrl: draft.logoUrl,
-            iconType: draft.iconType,
-            chatbotName: draft.chatbotName,
-            quickQuestionsTitle: draft.quickQuestionsTitle,
-            triggerMessage: draft.triggerMessage,
-            botGreetingMessage: draft.botGreetingMessage,
-            popupTitle: draft.popupTitle,
-            popupDescription: draft.popupDescription
-          }, 'live');
-
-          Swal.fire({
-            title: 'Reverted Successfully',
-            text: `Chatbot has been reverted to release "${release.draftName}".`,
-            icon: 'success',
-            confirmButtonColor: '#f37021',
-          });
-        } else {
-          throw new Error('Draft not found');
-        }
-      } catch (error) {
-        console.error('Failed to revert release:', error);
-        Swal.fire({
-          title: 'Error',
-          text: 'Failed to revert to the selected release. Please try again.',
-          icon: 'error',
-          confirmButtonColor: '#f37021',
-        });
-      }
-    }
-  };
-
-  const handleDeleteDraft = async (draftId: string) => {
-    const result = await Swal.fire({
-      title: 'Delete Draft',
-      text: 'Are you sure you want to delete this draft?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#6b7280',
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await AppearanceService.deleteDraft('main', draftId);
-        loadDrafts(); // Reload drafts
-        Swal.fire({
-          title: 'Deleted',
-          text: 'Draft has been deleted.',
-          icon: 'success',
-          confirmButtonColor: '#f37021',
-        });
-      } catch (error) {
-        console.error('Failed to delete draft:', error);
-        Swal.fire({
-          title: 'Error',
-          text: 'Failed to delete draft.',
-          icon: 'error',
-          confirmButtonColor: '#f37021',
-        });
-      }
+      setIsLoading(false);
     }
   };
 
@@ -1549,8 +1301,8 @@ function AppearanceView({ canEdit, isLoading }: { canEdit?: boolean; isLoading?:
                   key={color.value}
                   onClick={() => setLocalConfig({ ...localConfig, colorTheme: color.value })}
                   className={`relative group flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${localConfig.colorTheme === color.value
-                      ? 'border-gray-900 bg-gray-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-gray-900 bg-gray-50'
+                    : 'border-gray-200 hover:border-gray-300'
                     }`}
                 >
                   <div
@@ -1630,8 +1382,8 @@ function AppearanceView({ canEdit, isLoading }: { canEdit?: boolean; isLoading?:
                   key={color.value}
                   onClick={() => setLocalConfig({ ...localConfig, headerColorTheme: color.value })}
                   className={`relative group flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${localConfig.headerColorTheme === color.value
-                      ? 'border-gray-900 bg-gray-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-gray-900 bg-gray-50'
+                    : 'border-gray-200 hover:border-gray-300'
                     }`}
                 >
                   <div
@@ -1807,7 +1559,7 @@ function AppearanceView({ canEdit, isLoading }: { canEdit?: boolean; isLoading?:
             </label>
             <input
               type="text"
-              value={localConfig.logoUrl}
+
               onChange={(e) => setLocalConfig({ ...localConfig, logoUrl: e.target.value })}
               placeholder="/logo.png or https://example.com/logo.png"
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f37021] focus:border-transparent"
@@ -1822,17 +1574,13 @@ function AppearanceView({ canEdit, isLoading }: { canEdit?: boolean; isLoading?:
             <p className="text-sm font-semibold text-gray-700 mb-3">Preview</p>
             <div className="flex items-center gap-3">
               <div className="w-16 h-16 bg-white rounded-lg border-2 border-gray-200 flex items-center justify-center overflow-hidden">
-                {localConfig.logoUrl ? (
+                {localConfig.logoUrl && (
                   <img
+                    key={localConfig.logoUrl}
                     src={localConfig.logoUrl}
                     alt="Logo preview"
                     className="w-full h-full object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/FPTSoftware.png';
-                    }}
                   />
-                ) : (
-                  <span className="text-gray-400 text-xs">No logo</span>
                 )}
               </div>
               <div className="flex-1">
@@ -1861,8 +1609,8 @@ function AppearanceView({ canEdit, isLoading }: { canEdit?: boolean; isLoading?:
             <div
               onClick={() => setLocalConfig({ ...localConfig, iconType: 'default' })}
               className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${localConfig.iconType === 'default'
-                  ? 'border-[#f37021] bg-orange-50'
-                  : 'border-gray-200 hover:border-gray-300 bg-white'
+                ? 'border-[#f37021] bg-orange-50'
+                : 'border-gray-200 hover:border-gray-300 bg-white'
                 }`}
             >
               <div className="flex flex-col items-center gap-3">
@@ -1887,8 +1635,8 @@ function AppearanceView({ canEdit, isLoading }: { canEdit?: boolean; isLoading?:
             <div
               onClick={() => setLocalConfig({ ...localConfig, iconType: 'siriwhite' })}
               className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${localConfig.iconType === 'siriwhite'
-                  ? 'border-[#f37021] bg-orange-50'
-                  : 'border-gray-200 hover:border-gray-300 bg-white'
+                ? 'border-[#f37021] bg-orange-50'
+                : 'border-gray-200 hover:border-gray-300 bg-white'
                 }`}
             >
               <div className="flex flex-col items-center gap-3">
@@ -1929,8 +1677,8 @@ function AppearanceView({ canEdit, isLoading }: { canEdit?: boolean; isLoading?:
             <div
               onClick={() => setLocalConfig({ ...localConfig, iconType: 'siritrans' })}
               className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${localConfig.iconType === 'siritrans'
-                  ? 'border-[#f37021] bg-orange-50'
-                  : 'border-gray-200 hover:border-gray-300 bg-white'
+                ? 'border-[#f37021] bg-orange-50'
+                : 'border-gray-200 hover:border-gray-300 bg-white'
                 }`}
             >
               <div className="flex flex-col items-center gap-3">
@@ -2013,18 +1761,18 @@ function AppearanceView({ canEdit, isLoading }: { canEdit?: boolean; isLoading?:
                 className="px-4 py-3 flex items-center gap-3"
               >
                 <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center p-1">
-                  <img
-                    src={localConfig.logoUrl}
-                    alt="Logo"
-                    className="w-full h-full object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/FPTSoftware.png';
-                    }}
-                  />
+                  {localConfig.logoUrl && (
+                    <img
+                      key={localConfig.logoUrl}
+                      src={localConfig.logoUrl}
+                      alt="Logo"
+                      className="w-full h-full object-contain"
+                    />
+                  )}
                 </div>
                 <div>
                   <h3 className="text-white font-semibold text-base">
-                    {localConfig.chatbotName || 'FPT AI Assistant'}
+                    {localConfig.chatbotName || 'AI Assistant Name'}
                   </h3>
                   <p className="text-white/80 text-xs">Online</p>
                 </div>
@@ -2143,14 +1891,14 @@ function AppearanceView({ canEdit, isLoading }: { canEdit?: boolean; isLoading?:
             <div>
               <p className="text-xs text-gray-600 mb-2">Temporary Popup Message:</p>
               <div className="inline-flex items-center gap-3 bg-white border border-gray-200 rounded-2xl shadow-md px-4 py-3">
-                <img
-                  src={localConfig.logoUrl || '/FPTSoftware.png'}
-                  alt="Bot"
-                  className="w-10 h-10 rounded-full border-2 border-gray-200"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/FPTSoftware.png';
-                  }}
-                />
+                {localConfig.logoUrl && (
+                  <img
+                    key={localConfig.logoUrl}
+                    src={localConfig.logoUrl}
+                    alt="Bot"
+                    className="w-10 h-10 rounded-full border-2 border-gray-200"
+                  />
+                )}
                 <div>
                   <div className="text-sm font-semibold text-gray-900">
                     {localConfig.popupTitle || 'Need help? 👋🏻'}
@@ -2238,141 +1986,17 @@ function AppearanceView({ canEdit, isLoading }: { canEdit?: boolean; isLoading?:
         </div>
       )}
 
-      {/* Save Buttons */}
-      <div className="flex justify-end gap-3 pt-4">
+      {/* Save Button */}
+      <div className="flex justify-end pt-4">
         <button
           onClick={handleSave}
           disabled={!canEdit || isSavingAppearance}
-          className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors font-semibold shadow-sm ${
-            canEdit && !isSavingAppearance ? 'bg-black text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-          }`}
+          className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors font-semibold shadow-sm ${canEdit && !isSavingAppearance ? 'bg-black text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
         >
           <Save className="w-5 h-5" />
           {isSavingAppearance ? 'Saving...' : 'Save Appearance Settings'}
         </button>
-      </div>
-
-      {/* Saved Drafts Section */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Saved Drafts</h3>
-        <p className="text-sm text-gray-600 mb-6">
-          Your saved appearance drafts. Click "Apply" to test changes in /test-chatbot, or "Publish" to make them live for all users.
-        </p>
-
-        {isLoadingDrafts ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse">
-                <div className="h-16 bg-gray-100 rounded-lg"></div>
-              </div>
-            ))}
-          </div>
-        ) : drafts.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-500">No drafts saved yet.</p>
-            <p className="text-sm text-gray-400 mt-1">Use "Save Appearance Settings" to save your current settings as a draft.</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {drafts.map((draft) => {
-              const isPublished = releases.some(release => release.draftId === draft._id);
-              return (
-                <div key={draft._id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-semibold text-gray-900">{draft.name}</h4>
-                      {isPublished && (
-                        <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
-                          Published
-                        </span>
-                      )}
-                    </div>
-                  <p className="text-sm text-gray-500">
-                    Saved on {new Date(draft.created_at).toLocaleDateString()} at {new Date(draft.created_at).toLocaleTimeString()}
-                  </p>
-                  <div className="flex items-center gap-4 mt-2">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-4 h-4 rounded-full border border-gray-300"
-                        style={{ backgroundColor: draft.colorTheme }}
-                      />
-                      <span className="text-xs text-gray-600">Primary: {draft.colorTheme}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-4 h-4 rounded-full border border-gray-300"
-                        style={{ backgroundColor: draft.headerColorTheme }}
-                      />
-                      <span className="text-xs text-gray-600">Header: {draft.headerColorTheme}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleLoadDraft(draft)}
-                    className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-                  >
-                    Apply
-                  </button>
-                  <button
-                    onClick={() => handlePublishDraft(draft)}
-                    className="px-3 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
-                  >
-                    Publish
-                  </button>
-                  <button
-                    onClick={() => handleDeleteDraft(draft._id)}
-                    className="px-3 py-1.5 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Published Releases Section */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Published Releases</h3>
-        <p className="text-sm text-gray-600 mb-6">
-          Previously published versions. Click "Revert" to rollback to a previous release.
-        </p>
-
-        {releases.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-500">No releases published yet.</p>
-            <p className="text-sm text-gray-400 mt-1">Publish a draft to create your first release.</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {releases.map((release) => (
-              <div key={release._id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900">{release.draftName}</h4>
-                  <p className="text-sm text-gray-500">
-                    Published on {new Date(release.published_at).toLocaleDateString()} at {new Date(release.published_at).toLocaleTimeString()}
-                  </p>
-                  {release.releaseNotes && (
-                    <p className="text-sm text-gray-600 mt-2 italic">
-                      "{release.releaseNotes}"
-                    </p>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleRevertRelease(release)}
-                    className="px-3 py-1.5 text-sm bg-orange-600 text-white rounded hover:bg-orange-700 transition-colors"
-                  >
-                    Revert
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
@@ -2579,7 +2203,7 @@ function SettingsView({ canAccessSettings, isLoading }: { canAccessSettings?: bo
   //     setVisibilityLoading(false);
   //   }
   // };
-  
+
   const loadConfigKey = async () => {
     try {
       const keyData = await ConfigKeyService.getCurrentKey();
@@ -2659,42 +2283,42 @@ function SettingsView({ canAccessSettings, isLoading }: { canAccessSettings?: bo
       </script>`;
   };
 
-    // Default Country Section as a separate component to keep UI modular
-    function DefaultCountrySection({ localConfig, setLocalConfig }: { localConfig: any; setLocalConfig: any }) {
-      return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-2">Default Country</h3>
-          <p className="text-sm text-gray-600 mb-4">Select the default country that will be used in chatbot widget.</p>
+  // Default Country Section as a separate component to keep UI modular
+  function DefaultCountrySection({ localConfig, setLocalConfig }: { localConfig: any; setLocalConfig: any }) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 className="text-lg font-bold text-gray-900 mb-2">Default Country</h3>
+        <p className="text-sm text-gray-600 mb-4">Select the default country that will be used in chatbot widget.</p>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Default Country</label>
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Default Country</label>
 
-            <select
-              value={localConfig?.defaultCountryName || ''}
-              onChange={(e) => {
-                const next = { ...(localConfig || {}), defaultCountryName: e.target.value };
-                setLocalConfig(next);
-                try {
-                  updateConfig(next);
-                } catch (err) {
-                  // ignore update errors here; user can still click Save
-                }
-              }}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f37021] focus:border-transparent"
-            >
-              <option value="">-- Select a country --</option>
-              {COUNTRIES.map((c) => (
-                <option key={c.id} value={c.label}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
+          <select
+            value={localConfig?.defaultCountryName || ''}
+            onChange={(e) => {
+              const next = { ...(localConfig || {}), defaultCountryName: e.target.value };
+              setLocalConfig(next);
+              try {
+                updateConfig(next);
+              } catch (err) {
+                // ignore update errors here; user can still click Save
+              }
+            }}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f37021] focus:border-transparent"
+          >
+            <option value="">-- Select a country --</option>
+            {COUNTRIES.map((c) => (
+              <option key={c.id} value={c.label}>
+                {c.label}
+              </option>
+            ))}
+          </select>
 
-            <p className="mt-2 text-xs text-gray-500">Pick a country from the dropdown. The selected value will be saved to the chatbot configuration.</p>
-          </div>
+          <p className="mt-2 text-xs text-gray-500">Pick a country from the dropdown. The selected value will be saved to the chatbot configuration.</p>
         </div>
-      );
-    }
+      </div>
+    );
+  }
 
   const copyEmbedCode = () => {
     const code = generateEmbedCode();
@@ -2736,9 +2360,8 @@ function SettingsView({ canAccessSettings, isLoading }: { canAccessSettings?: bo
             <button
               onClick={generateNewConfigKey}
               disabled={keyGenerating || !canAccessSettings}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
-                canAccessSettings ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              }`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors text-sm font-medium ${canAccessSettings ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                }`}
             >
               {keyGenerating ? (
                 <>
@@ -2759,9 +2382,8 @@ function SettingsView({ canAccessSettings, isLoading }: { canAccessSettings?: bo
             <button
               onClick={generateNewConfigKey}
               disabled={keyGenerating || !canAccessSettings}
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors font-medium mx-auto ${
-                canAccessSettings ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              }`}
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors font-medium mx-auto ${canAccessSettings ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                }`}
             >
               {keyGenerating ? (
                 <>
@@ -2778,7 +2400,7 @@ function SettingsView({ canAccessSettings, isLoading }: { canAccessSettings?: bo
           </div>
         )}
 
-      
+
 
         <div className="mt-4 p-4 bg-white rounded-lg border border-blue-200">
           <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
@@ -2859,7 +2481,7 @@ function SettingsView({ canAccessSettings, isLoading }: { canAccessSettings?: bo
           Add your Cloudinary values in the fields below. These values are saved in your portal settings and used by image upload endpoints.
         </p>
 
-        <div className="space-y-4">         
+        <div className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">CLOUDINARY_URL</label>
             <input
@@ -2966,7 +2588,7 @@ function SettingsView({ canAccessSettings, isLoading }: { canAccessSettings?: bo
         </div>
       </div>
 
-        {/* Chatbot Visibility Settings */}
+      {/* Chatbot Visibility Settings */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-bold text-gray-900 mb-2">Chatbot Visibility</h3>
         <p className="text-sm text-gray-600 mb-4">Control when the chatbot appears on your website using visibility rules. Use one pattern per line. Use * for wildcards (e.g. https://example.com/products/*).</p>
@@ -3280,13 +2902,12 @@ function SettingsView({ canAccessSettings, isLoading }: { canAccessSettings?: bo
         </div>
       </div>
 
-        <div className="flex justify-end">
+      <div className="flex justify-end">
         <button
           onClick={handleSave}
           disabled={!canAccessSettings || isSavingSettings}
-          className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors font-semibold shadow-sm ${
-            canAccessSettings && !isSavingSettings ? 'bg-black text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-          }`}
+          className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors font-semibold shadow-sm ${canAccessSettings && !isSavingSettings ? 'bg-black text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
         >
           <Save className="w-5 h-5" />
           {isSavingSettings ? 'Saving...' : 'Save Settings'}

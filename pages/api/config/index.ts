@@ -10,13 +10,13 @@ export const config = {
   },
 };
 
-async function initializeConfigDefaults(db: any, configId: string) {
+async function initializeConfigDefaults(db: any) {
   // Initialize with default config if none exists
-  const existingConfig = await db.collection('chatbot_config').findOne({ config_id: configId });
+  const existingConfig = await db.collection('chatbot_config').findOne({ config_id: 'main_config' });
   
   if (!existingConfig) {
     const defaultConfig = {
-      config_id: configId,
+      config_id: 'main_config',
       colorTheme: '#f37021',
       headerColorTheme: '#f37021',
       logoUrl: '/FPTSoftware.png',
@@ -38,7 +38,7 @@ async function initializeConfigDefaults(db: any, configId: string) {
     };
 
     await db.collection('chatbot_config').insertOne(defaultConfig);
-    console.log(`Initialized default chatbot config in database for ${configId}`);
+    console.log('Initialized default chatbot config in database');
     return defaultConfig;
   }
   
@@ -57,13 +57,9 @@ async function configHandler(req: AuthenticatedRequest, res: NextApiResponse) {
     
     console.log('Tenant database connected successfully');
 
-    // Determine config mode: 'live' (default) or 'test'
-    const mode = (req.query.mode as string) || 'live';
-    const configId = mode === 'test' ? 'test_config' : 'main_config';
-
     if (req.method === 'GET') {
       // Always ensure we have config in the database, initialize if needed
-      const config = await initializeConfigDefaults(db, configId);
+      const config = await initializeConfigDefaults(db);
       
       res.status(200).json({ 
         data: {
@@ -91,13 +87,13 @@ async function configHandler(req: AuthenticatedRequest, res: NextApiResponse) {
       // Update or create chatbot configuration
       const configData = {
         ...req.body,
-        config_id: configId,
+        config_id: 'main_config',
         updated_at: new Date().toISOString(),
       };
 
       // Upsert the configuration (update if exists, create if not)
       const result = await db.collection('chatbot_config').updateOne(
-        { config_id: configId },
+        { config_id: 'main_config' },
         { 
           $set: configData,
           $setOnInsert: { created_at: new Date().toISOString() }
@@ -105,7 +101,7 @@ async function configHandler(req: AuthenticatedRequest, res: NextApiResponse) {
         { upsert: true }
       );
 
-      const updatedConfig = await db.collection('chatbot_config').findOne({ config_id: configId });
+      const updatedConfig = await db.collection('chatbot_config').findOne({ config_id: 'main_config' });
       
       if (!updatedConfig) {
         return res.status(500).json({ error: 'Failed to retrieve updated config' });
